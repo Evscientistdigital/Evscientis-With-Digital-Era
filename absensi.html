@@ -1,84 +1,87 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Absensi Siswa - Dashboard</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Absensi Siswa</title>
 <script src="https://unpkg.com/html5-qrcode"></script>
 <style>
-* { box-sizing: border-box; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
 body { 
-    font-family: 'Poppins', sans-serif; 
-    background: linear-gradient(135deg,#f5f7ff,#e0ebff); 
-    margin: 0;
-    padding: 20px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     min-height: 100vh;
+    padding: 20px;
 }
 .container {
-    max-width: 1200px;
+    max-width: 500px;
     margin: 0 auto;
 }
 .header {
     text-align: center;
     background: white;
-    padding: 30px;
+    padding: 30px 20px;
     border-radius: 20px;
-    box-shadow: 0 15px 40px rgba(0,0,0,0.1);
-    margin-bottom: 30px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    margin-bottom: 20px;
 }
-.logo { font-size: 48px; margin-bottom: 10px; }
-h1 { color: #2c3e50; margin: 0 0 10px 0; font-size: 28px; }
+.logo { font-size: 40px; margin-bottom: 10px; }
+h1 { color: #2c3e50; font-size: 24px; font-weight: 700; margin-bottom: 15px; }
 .stats {
-    display: flex;
-    justify-content: center;
-    gap: 30px;
-    margin-top: 20px;
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-top: 15px;
 }
 .stat-card {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: rgba(255,255,255,0.3);
     color: white;
-    padding: 20px;
-    border-radius: 15px;
-    min-width: 120px;
+    padding: 12px 8px;
+    border-radius: 12px;
     text-align: center;
+    backdrop-filter: blur(10px);
 }
-.stat-number { font-size: 32px; font-weight: bold; margin-bottom: 5px; }
+.stat-number { font-size: 20px; font-weight: bold; }
+.stat-label { font-size: 11px; opacity: 0.9; }
 
 .card { 
     background: white; 
-    padding: 30px; 
     border-radius: 20px; 
-    box-shadow: 0 15px 40px rgba(0,0,0,0.1); 
-    margin-bottom: 30px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2); 
+    overflow: hidden;
 }
 .tabs {
     display: flex;
-    border-bottom: 2px solid #eee;
-    margin-bottom: 25px;
+    background: #f8f9fa;
 }
 .tab {
-    padding: 15px 30px;
+    flex: 1;
+    padding: 15px 10px;
+    text-align: center;
     cursor: pointer;
     font-weight: 600;
+    font-size: 14px;
     border-bottom: 3px solid transparent;
     transition: 0.3s;
+    color: #6c757d;
 }
 .tab.active {
     color: #346dff;
+    background: white;
     border-bottom-color: #346dff;
 }
-.tab-content { display: none; }
+.tab-content { display: none; padding: 25px; }
 .tab-content.active { display: block; }
 
 input, select, button { 
     width: 100%; 
-    margin: 12px 0; 
-    padding: 14px; 
-    border-radius: 12px; 
-    border: 1px solid #ddd; 
+    margin: 10px 0; 
+    padding: 14px;
+    border-radius: 12px;
+    border: 1px solid #e9ecef;
     font-size: 16px;
     transition: 0.3s;
+    background: white;
 }
 input:focus, select:focus { 
     outline: none; 
@@ -89,80 +92,76 @@ button {
     background: #346dff; 
     color: #fff; 
     border: none; 
-    font-weight: 600; 
+    font-weight: 600;
     cursor: pointer;
-    font-size: 16px;
+    margin: 5px 0;
 }
 button:hover:not(:disabled) { background: #1a52d1; }
 button:disabled { background: #ccc; cursor: not-allowed; }
 .btn-secondary { background: #6c757d; }
 .btn-secondary:hover { background: #545b62; }
-.btn-success { background: #28a745; }
-.btn-success:hover { background: #218838; }
 
 .profile-card {
-    background: linear-gradient(135deg,#667eea 0%,#764ba2 100%);
+    background: linear-gradient(135deg, #346dff, #1a52d1);
     color: white;
-    padding: 25px;
+    padding: 20px;
     border-radius: 15px;
-    margin-bottom: 25px;
+    margin-bottom: 20px;
     display: flex;
     align-items: center;
-    gap: 20px;
+    gap: 15px;
 }
 .profile-avatar {
-    width: 70px;
-    height: 70px;
+    width: 50px;
+    height: 50px;
     background: rgba(255,255,255,0.2);
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 24px;
+    font-size: 20px;
+    font-weight: bold;
 }
-.profile-info h3 { margin: 0 0 5px 0; font-size: 22px; }
-.profile-info p { margin: 0; opacity: 0.9; }
+.profile-info h3 { margin: 0 0 2px 0; font-size: 18px; }
+.profile-info p { margin: 0; opacity: 0.9; font-size: 14px; }
 
 #reader {
     width: 100%;
-    height: 250px;
+    height: 200px;
     border-radius: 12px;
     overflow: hidden;
-    margin: 15px 0;
-    background: #f8f9ff;
-    border: 2px dashed #ddd;
+    margin: 10px 0;
+    background: #f8f9fa;
+    border: 2px dashed #dee2e6;
 }
 
 .table-container {
-    overflow-x: auto;
+    max-height: 400px;
+    overflow-y: auto;
     border-radius: 12px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
 }
 table {
     width: 100%;
     border-collapse: collapse;
-    background: white;
-    min-width: 800px;
 }
 th, td {
-    padding: 15px;
+    padding: 12px 8px;
     text-align: left;
     border-bottom: 1px solid #eee;
+    font-size: 14px;
 }
 th {
-    background: #f8f9ff;
+    background: #f8f9fa;
     font-weight: 600;
-    color: #2c3e50;
+    color: #495057;
     position: sticky;
     top: 0;
 }
 .status-badge {
-    padding: 6px 16px;
+    padding: 4px 12px;
     border-radius: 20px;
-    font-size: 12px;
+    font-size: 11px;
     font-weight: 600;
-    text-align: center;
-    min-width: 60px;
 }
 .status-hadir { background: #d4edda; color: #155724; }
 .status-izin { background: #fff3cd; color: #856404; }
@@ -173,38 +172,36 @@ th {
     position: fixed;
     left: 50%;
     transform: translateX(-50%);
-    padding: 20px 40px;
-    border-radius: 15px;
+    padding: 15px 25px;
+    border-radius: 12px;
     font-weight: 600;
-    font-size: 16px;
+    font-size: 14px;
     z-index: 1000;
     max-width: 90vw;
-    text-align: center;
 }
 .success {
     top: 20px;
-    background: #4caf50;
+    background: #28a745;
     color: white;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.2);
     display: none;
 }
 .notif {
     bottom: 30px;
-    background: rgba(255,80,80,0.95);
+    background: rgba(220,53,69,0.95);
     color: white;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.2);
     opacity: 0;
-    transition: 0.4s;
+    transition: 0.3s;
 }
-.notif.show { opacity: 1; transform: translateX(-50%) scale(1); }
+.notif.show { opacity: 1; }
 
-@media (max-width: 768px) {
-    .stats { gap: 15px; }
-    .stat-card { min-width: 100px; }
+@media (max-width: 480px) {
+    body { padding: 15px; }
+    .container { max-width: 100%; }
+    .stats { grid-template-columns: 1fr; }
     .profile-card { flex-direction: column; text-align: center; }
     .tabs { flex-direction: column; }
-    .tab { border-bottom: none; border-right: 3px solid transparent; }
-    .tab.active { border-right-color: #346dff; }
 }
 </style>
 </head>
@@ -213,19 +210,19 @@ th {
 <div class="container">
     <div class="header">
         <div class="logo">📚</div>
-        <h1>Dashboard Absensi Siswa</h1>
+        <h1>Absensi Siswa</h1>
         <div class="stats">
             <div class="stat-card">
                 <div class="stat-number" id="totalAbsen">0</div>
-                <div>Total Absensi</div>
+                <div class="stat-label">Total</div>
             </div>
             <div class="stat-card">
                 <div class="stat-number" id="hadirCount">0</div>
-                <div>Hadir</div>
+                <div class="stat-label">Hadir</div>
             </div>
             <div class="stat-card">
                 <div class="stat-number" id="izinCount">0</div>
-                <div>Izin</div>
+                <div class="stat-label">Izin</div>
             </div>
         </div>
     </div>
@@ -237,19 +234,17 @@ th {
             <div class="tab" data-tab="history">📊 Riwayat</div>
         </div>
 
-        <!-- LOGIN TAB -->
         <div id="login" class="tab-content active">
-            <h3 style="margin-top:0;">Login Siswa</h3>
-            <input id="loginNIS" placeholder="NIS (01-033)" maxlength="3" />
+            <h3 style="margin:0 0 20px 0; color:#495057;">Login Siswa</h3>
+            <input id="loginNIS" placeholder="NIS (contoh: 01)" maxlength="5" />
             <input id="loginPass" type="password" placeholder="Password" />
             <button id="btnLogin">Masuk</button>
-            <div style="margin-top:20px;">
-                <small>Atau scan QR Code:</small>
-                <div id="qrReader"></div>
+            <div style="text-align:center; margin-top:15px;">
+                <small style="color:#6c757d;">Atau scan QR Code</small>
+                <div id="qrReader" style="margin-top:10px;"></div>
             </div>
         </div>
 
-        <!-- ABSEN TAB -->
         <div id="absen" class="tab-content">
             <div class="profile-card" id="profileCard" style="display:none;">
                 <div class="profile-avatar" id="avatar">A</div>
@@ -258,7 +253,7 @@ th {
                     <p><strong>NIS:</strong> <span id="siswaNIS">-</span></p>
                 </div>
             </div>
-            <input id="manualKelas" placeholder="No Absen / Kelas" />
+            <input id="manualKelas" placeholder="Kelas/No.Absen" />
             <select id="manualStatus">
                 <option value="Hadir">✅ Hadir</option>
                 <option value="Izin">📝 Izin</option>
@@ -270,11 +265,10 @@ th {
             <button id="btnLogout" class="btn-secondary">Logout</button>
         </div>
 
-        <!-- HISTORY TAB -->
         <div id="history" class="tab-content">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-                <h3>Riwayat Absensi</h3>
-                <button id="clearData" class="btn-secondary">🗑️ Hapus Semua</button>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+                <h3 style="margin:0;">Riwayat Absensi</h3>
+                <button id="clearData" class="btn-secondary" style="padding:8px 12px; font-size:14px;">🗑️ Hapus</button>
             </div>
             <div class="table-container">
                 <table>
@@ -283,14 +277,11 @@ th {
                             <th>Tanggal</th>
                             <th>NIS</th>
                             <th>Nama</th>
-                            <th>Kelas</th>
                             <th>Status</th>
-                            <th>Keterangan</th>
-                            <th>Waktu</th>
                         </tr>
                     </thead>
                     <tbody id="absenTableBody">
-                        <tr><td colspan="7" style="text-align:center;color:#999;padding:40px;">Belum ada data absensi</td></tr>
+                        <tr><td colspan="4" style="text-align:center;color:#999;padding:30px;">Belum ada data</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -298,59 +289,46 @@ th {
     </div>
 </div>
 
-<div id="successMsg" class="success">✅ Absensi berhasil disimpan!</div>
+<div id="successMsg" class="success"></div>
 <div id="notif" class="notif"></div>
 
 <script>
-/* DATA SISWA */
 const dataSiswa = {
-    "01": { nama: "Afgan Aditya Syahreza", pass: "123" },
+    "01": { nama: "Afgan Aditya", pass: "123" },
     "02": { nama: "Andin Amelian", pass: "123" },
     "03": { nama: "Anindya Novika", pass: "123" },
-    "04": { nama: "Aryasatya Toru Mustofa", pass: "123" },
-    "05": { nama: "Asyla Nayla Diah Susanto", pass: "123" },
-    "06": { nama: "Audy Melinda Putri", pass: "123" },
-    "07": { nama: "Aurelia Zera Indri Calista", pass: "123" },
-    "08": { nama: "Avansya Syaputra Pratama", pass: "123" },
-    "09": { nama: "Dava Alreza Saputra", pass: "123" },
-    "010": { nama: "Dhiva Gina Rosita", pass: "123" },
-    "011": { nama: "Dienda Rafita Cahaya", pass: "123" },
-    "012": { nama: "Friska Aprilliana", pass: "123" },
-    "013": { nama: "Icha Ajeng Sevtiana", pass: "123" },
-    "014": { nama: "Jazila Rahma Mufidah", pass: "123" },
-    "015": { nama: "Mei Wulansari", pass: "123" },
-    "016": { nama: "Melati Putri Zahratusita", pass: "123" },
-    "017": { nama: "Moh Ardiansyah Tri", pass: "123" },
-    "018": { nama: "Moh Maulana Ridlo", pass: "123" },
-    "019": { nama: "Mutiara Citra Widiasari", pass: "123" },
-    "020": { nama: "Naufal Agastian Wiyanata", pass: "123" },
-    "033": { nama: "Wira Surya Dharma Budiarta", pass: "123" }
+    "04": { nama: "Aryasatya Mustofa", pass: "123" },
+    "05": { nama: "Asyla Nayla", pass: "123" },
+    "010": { nama: "Dhiva Gina", pass: "123" },
+    "011": { nama: "Dienda Rafita", pass: "123" },
+    "033": { nama: "Wira Surya", pass: "123" }
 };
 
 let currentUser = null;
+let qrReader = null;
 
-/* UTILITY FUNCTIONS */
-function showSuccess(msg = "✅ Berhasil!") {
+function showSuccess(msg) {
     const el = document.getElementById("successMsg");
     el.textContent = msg;
     el.style.display = "block";
-    setTimeout(() => el.style.display = "none", 3000);
+    setTimeout(() => el.style.display = "none", 2500);
 }
 
 function showNotif(msg) {
     const el = document.getElementById("notif");
     el.textContent = msg;
     el.classList.add("show");
-    setTimeout(() => el.classList.remove("show"), 3000);
+    setTimeout(() => el.classList.remove("show"), 2500);
 }
 
 function updateStats() {
     const absensi = JSON.parse(localStorage.getItem('absensi') || '[]');
     const stats = absensi.reduce((acc, item) => {
         acc.total++;
-        acc[item.status.toLowerCase()] = (acc[item.status.toLowerCase()] || 0) + 1;
+        const status = item.status.toLowerCase();
+        acc[status] = (acc[status] || 0) + 1;
         return acc;
-    }, { total: 0, hadir: 0, izin: 0, sakit: 0, alpa: 0 });
+    }, { total: 0, hadir: 0, izin: 0 });
     
     document.getElementById("totalAbsen").textContent = stats.total;
     document.getElementById("hadirCount").textContent = stats.hadir;
@@ -362,19 +340,16 @@ function renderTable() {
     const tbody = document.getElementById("absenTableBody");
     
     if (absensi.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:#999;padding:40px;">Belum ada data absensi</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:#999;padding:30px;">Belum ada data</td></tr>';
         return;
     }
     
-    tbody.innerHTML = absensi.map(item => `
+    tbody.innerHTML = absensi.slice(-10).map(item => `
         <tr>
             <td>${item.tanggal}</td>
             <td><strong>${item.nis}</strong></td>
             <td>${item.nama}</td>
-            <td>${item.kelas}</td>
             <td><span class="status-badge status-${item.status.toLowerCase()}">${item.status}</span></td>
-            <td>${item.keterangan}</td>
-            <td>${new Date(item.timestamp).toLocaleTimeString('id-ID')}</td>
         </tr>
     `).join('');
 }
@@ -388,9 +363,9 @@ function simpanAbsensi(data) {
     localStorage.setItem('absensi', JSON.stringify(absensi));
     updateStats();
     renderTable();
+    showSuccess("✅ Absensi berhasil!");
 }
 
-/* LOGIN SYSTEM */
 function login(nis, pass) {
     const siswa = dataSiswa[nis];
     if (!siswa) return showNotif("❌ NIS tidak ditemukan!");
@@ -399,15 +374,21 @@ function login(nis, pass) {
     currentUser = { nis, ...siswa };
     document.getElementById("siswaNIS").textContent = nis;
     document.getElementById("siswaNama").textContent = siswa.nama;
-    document.getElementById("avatar").textContent = siswa.nama[0].toUpperCase();
+    document.getElementById("avatar").textContent = siswa.nama[0];
     document.getElementById("profileCard").style.display = "flex";
     
-    showNotif(`✅ Selamat datang, ${siswa.nama}!`);
+    document.querySelector('[data-tab="absen"]').click();
+    showNotif(`✅ Welcome ${siswa.nama}!`);
 }
 
-/* EVENT HANDLERS */
+function logout() {
+    currentUser = null;
+    document.getElementById("profileCard").style.display = "none";
+    document.querySelector('[data-tab="login"]').click();
+}
+
+// EVENT HANDLERS
 document.addEventListener('DOMContentLoaded', () => {
-    // Initial load
     updateStats();
     renderTable();
     
@@ -421,13 +402,18 @@ document.addEventListener('DOMContentLoaded', () => {
         };
     });
     
-    // Login
+    // Login button - FIXED
     document.getElementById("btnLogin").onclick = () => {
         const nis = document.getElementById("loginNIS").value.trim();
         const pass = document.getElementById("loginPass").value.trim();
         if (!nis || !pass) return showNotif("❌ Isi NIS dan Password!");
         login(nis, pass);
     };
+    
+    // Enter key login
+    document.getElementById("loginPass").addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') document.getElementById("btnLogin").click();
+    });
     
     // Absen
     document.getElementById("kirimAbsen").onclick = () => {
@@ -437,10 +423,36 @@ document.addEventListener('DOMContentLoaded', () => {
         const status = document.getElementById("manualStatus").value;
         const ket = document.getElementById("manualKet").value.trim();
         
-        if (!kelas) return showNotif("❌ Isi No Absen/Kelas!");
+        if (!kelas) return showNotif("❌ Isi Kelas/No.Absen!");
         
-        const data = {
+        simpanAbsensi({
             nis: currentUser.nis,
             nama: currentUser.nama,
-            kelas, status, keterangan: ket || "-",
-            tanggal: new Date().toLocaleDateString('id-ID
+            kelas, 
+            status, 
+            keterangan: ket || '-',
+            tanggal: new Date().toLocaleDateString('id-ID')
+        });
+        
+        // Reset form
+        document.getElementById("manualKelas").value = "";
+        document.getElementById("manualStatus").value = "Hadir";
+        document.getElementById("manualKet").value = "";
+    };
+    
+    // Logout
+    document.getElementById("btnLogout").onclick = logout;
+    
+    // Clear data
+    document.getElementById("clearData").onclick = () => {
+        if (confirm("Hapus semua data absensi?")) {
+            localStorage.removeItem('absensi');
+            updateStats();
+            renderTable();
+            showSuccess("🗑️ Data dihapus!");
+        }
+    };
+});
+</script>
+</body>
+</html>
