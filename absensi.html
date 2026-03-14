@@ -3,141 +3,350 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Absensi Siswa</title>
+<title>Absensi Siswa - Login</title>
 <script src="https://unpkg.com/html5-qrcode"></script>
-<link rel="stylesheet" href="style.css">
 <style>
-body { font-family: 'Poppins', sans-serif; background: linear-gradient(135deg,#f5f7ff,#e0ebff); display:flex; justify-content:center; padding:30px; }
-.card { background:#fff; padding:30px 40px; border-radius:20px; box-shadow:0 15px 40px rgba(0,0,0,0.1); width:100%; max-width:500px; }
-input, select, button { width:100%; margin:10px 0; padding:12px; border-radius:10px; border:1px solid #ccc; font-size:15px; }
-button { cursor:pointer; font-weight:600; transition:0.3s; }
-button#kirimManual { background:#346dff; color:#fff; }
-button#kirimManual:hover { background:#1a52d1; }
-.success { display:none; position:fixed; top:20px; left:50%; transform:translateX(-50%); background:#4caf50; color:#fff; padding:15px 30px; border-radius:10px; box-shadow:0 5px 15px rgba(0,0,0,0.2); z-index:1000; font-weight:600; text-align:center; }
-.notif { position:fixed; bottom:25px; left:50%; transform:translateX(-50%) scale(0.8); background:rgba(255,80,80,0.95); color:#fff; padding:14px 22px; border-radius:14px; font-size:15px; font-weight:600; box-shadow:0 4px 15px rgba(0,0,0,0.15); opacity:0; transition:0.35s; pointer-events:none; text-align:center; }
-.notif.show { opacity:1; transform:translateX(-50%) scale(1); }
+* { box-sizing: border-box; }
+body { 
+    font-family: 'Poppins', sans-serif; 
+    background: linear-gradient(135deg,#f5f7ff,#e0ebff); 
+    display:flex; 
+    justify-content:center; 
+    align-items:center; 
+    min-height: 100vh;
+    margin: 0;
+    padding:20px;
+}
+.card { 
+    background:#fff; 
+    padding:30px 40px; 
+    border-radius:20px; 
+    box-shadow:0 20px 50px rgba(0,0,0,0.1); 
+    width:100%; 
+    max-width:450px; 
+    text-align:center;
+}
+.logo { font-size:48px; margin-bottom:10px; }
+h1 { color:#2c3e50; margin:0 0 30px 0; font-size:24px; }
+.login-form, .absen-form { display:none; }
+.active { display:block; }
+input, select, button { 
+    width:100%; 
+    margin:12px 0; 
+    padding:14px; 
+    border-radius:12px; 
+    border:1px solid #ddd; 
+    font-size:16px;
+    transition:0.3s;
+}
+input:focus, select:focus { 
+    outline:none; 
+    border-color:#346dff; 
+    box-shadow:0 0 0 3px rgba(52,109,255,0.1);
+}
+button { 
+    background:#346dff; 
+    color:#fff; 
+    border:none; 
+    font-weight:600; 
+    cursor:pointer;
+    font-size:16px;
+}
+button:hover:not(:disabled) { background:#1a52d1; }
+button:disabled { 
+    background:#ccc; 
+    cursor:not-allowed; 
+}
+.success { 
+    position:fixed; 
+    top:20px; 
+    left:50%; 
+    transform:translateX(-50%); 
+    background:#4caf50; 
+    color:#fff; 
+    padding:20px 40px; 
+    border-radius:15px; 
+    box-shadow:0 10px 30px rgba(0,0,0,0.2); 
+    z-index:1000; 
+    font-weight:600; 
+    font-size:18px;
+    display:none;
+}
+.notif { 
+    position:fixed; 
+    bottom:30px; 
+    left:50%; 
+    transform:translateX(-50%) scale(0.8); 
+    background:rgba(255,80,80,0.95); 
+    color:#fff; 
+    padding:15px 25px; 
+    border-radius:15px; 
+    font-size:16px; 
+    font-weight:600; 
+    box-shadow:0 10px 30px rgba(0,0,0,0.2); 
+    opacity:0; 
+    transition:0.4s; 
+    max-width:90vw;
+    text-align:center;
+}
+.notif.show { 
+    opacity:1; 
+    transform:translateX(-50%) scale(1); 
+}
+#reader {
+    width:100%;
+    height:280px;
+    border-radius:12px;
+    overflow:hidden;
+    margin:15px 0;
+    background:#f8f9ff;
+}
+.profile-card {
+    background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);
+    color:white;
+    padding:20px;
+    border-radius:15px;
+    margin:20px 0;
+}
+.profile-info h3 { margin:0 0 10px 0; font-size:22px; }
+.profile-info p { margin:5px 0; opacity:0.9; }
+.status-badge {
+    display:inline-block;
+    padding:8px 20px;
+    border-radius:25px;
+    font-weight:600;
+    font-size:14px;
+    margin:5px;
+}
+.status-hadir { background:#4caf50; color:white; }
+.status-izin { background:#ff9800; color:white; }
+.status-sakit { background:#f44336; color:white; }
 </style>
 </head>
 <body>
 
 <div class="card">
+    <div class="logo">📚</div>
     <h1>Absensi Siswa</h1>
+    
+    <!-- LOGIN FORM -->
+    <div id="loginForm" class="login-form active">
+        <h3>🔐 Login Siswa</h3>
+        <input id="loginNIS" placeholder="NIS (01-033)" maxlength="3" />
+        <input id="loginPass" type="password" placeholder="Password" />
+        <button id="btnLogin">Masuk</button>
+        <p style="font-size:14px;color:#666;margin-top:20px;">
+            Atau scan QR Code login ↓
+        </p>
+        <div id="qrReader"></div>
+    </div>
 
-    <h2>Scan QR</h2>
-    <div id="reader"></div>
-    <p id="scanStatus" style="font-size:14px;color:#555">Mengaktifkan kamera...</p>
-
-    <h2>Isi Manual</h2>
-    <input id="manualId" placeholder="NIS" autocomplete="off" />
-    <input id="manualNama" placeholder="Nama Lengkap" />
-    <input id="manualKelas" placeholder="No Absen / Kelas" />
-    <select id="manualStatus">
-        <option value="Hadir">Hadir</option>
-        <option value="Izin">Izin</option>
-        <option value="Sakit">Sakit</option>
-    </select>
-    <input id="manualKet" placeholder="Keterangan (opsional)" />
-    <button id="kirimManual">Kirim Absen</button>
+    <!-- ABSEN FORM -->
+    <div id="absenForm" class="absen-form">
+        <div class="profile-card">
+            <div class="profile-info">
+                <h3 id="siswaNama">-</h3>
+                <p><strong>NIS:</strong> <span id="siswaNIS">-</span></p>
+                <div id="statusBadge">-</div>
+            </div>
+        </div>
+        
+        <h3>📝 Isi Absensi</h3>
+        <input id="manualKelas" placeholder="No Absen / Kelas" />
+        <select id="manualStatus">
+            <option value="Hadir">✅ Hadir</option>
+            <option value="Izin">📝 Izin</option>
+            <option value="Sakit">🤒 Sakit</option>
+            <option value="Alpa">❌ Alpa</option>
+        </select>
+        <input id="manualKet" placeholder="Keterangan (opsional)" />
+        <button id="kirimAbsen">Kirim Absensi</button>
+        <button id="btnLogout" style="background:#ff6b6b;margin-top:10px;">Logout</button>
+    </div>
 </div>
 
-<div id="successMsg" class="success">✅ Absensi Berhasil</div>
+<div id="successMsg" class="success">✅ Absensi berhasil disimpan!</div>
 <div id="notif" class="notif"></div>
 
 <script>
-let sudahAbsen = false;
-
-/* AUDIO */
-const audioBenar = new Audio("https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg");
-const audioSalah = new Audio("https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg");
-
-/* DATA SISWA VALID */
+/* DATA SISWA + PASSWORD */
 const dataSiswa = {
- "01":"Afgan Aditya Syahreza",
- "02":"Andin Amelian",
- "03":"Anindya Novika",
- "04":"Aryasatya Toru Mustofa",
- "05":"Asyla Nayla Diah Susanto",
- "06":"Audy Melinda Putri",
- "07":"Aurelia Zera Indri Calista",
- "08":"Avansya Syaputra Pratama",
- "09":"Dava Alreza Saputra",
- "010":"Dhiva Gina Rosita",
- "011":"Dienda Rafita Cahaya",
- "012":"Friska Aprilliana",
- "013":"Icha Ajeng Sevtiana",
- "014":"Jazila Rahma Mufidah",
- "015":"Mei Wulansari",
- "016":"Melati Putri Zahratusita",
- "017":"Moh Ardiansyah Tri",
- "018":"Moh Maulana Ridlo",
- "019":"Mutiara Citra Widiasari",
- "020":"Naufal Agastian Wiyanata"
- "033': Wira Surya Dharma Budiarta
+    "01": { nama: "Afgan Aditya Syahreza", pass: "123" },
+    "02": { nama: "Andin Amelian", pass: "123" },
+    "03": { nama: "Anindya Novika", pass: "123" },
+    "04": { nama: "Aryasatya Toru Mustofa", pass: "123" },
+    "05": { nama: "Asyla Nayla Diah Susanto", pass: "123" },
+    "06": { nama: "Audy Melinda Putri", pass: "123" },
+    "07": { nama: "Aurelia Zera Indri Calista", pass: "123" },
+    "08": { nama: "Avansya Syaputra Pratama", pass: "123" },
+    "09": { nama: "Dava Alreza Saputra", pass: "123" },
+    "010": { nama: "Dhiva Gina Rosita", pass: "123" },
+    "011": { nama: "Dienda Rafita Cahaya", pass: "123" },
+    "012": { nama: "Friska Aprilliana", pass: "123" },
+    "013": { nama: "Icha Ajeng Sevtiana", pass: "123" },
+    "014": { nama: "Jazila Rahma Mufidah", pass: "123" },
+    "015": { nama: "Mei Wulansari", pass: "123" },
+    "016": { nama: "Melati Putri Zahratusita", pass: "123" },
+    "017": { nama: "Moh Ardiansyah Tri", pass: "123" },
+    "018": { nama: "Moh Maulana Ridlo", pass: "123" },
+    "019": { nama: "Mutiara Citra Widiasari", pass: "123" },
+    "020": { nama: "Naufal Agastian Wiyanata", pass: "123" },
+    "033": { nama: "Wira Surya Dharma Budiarta", pass: "123" }
 };
 
-function showSuccess(){
- document.getElementById("successMsg").style.display="block";
- setTimeout(()=>document.getElementById("successMsg").style.display="none",2000);
+let currentUser = null;
+let html5QrCode = null;
+
+/* UTILITY FUNCTIONS */
+function showSuccess() {
+    const msg = document.getElementById("successMsg");
+    msg.style.display = "block";
+    setTimeout(() => msg.style.display = "none", 3000);
 }
 
-function showNotif(msg){
- const n=document.getElementById("notif");
- n.innerText=msg;
- n.classList.add("show");
- setTimeout(()=>n.classList.remove("show"),2000);
+function showNotif(msg) {
+    const notif = document.getElementById("notif");
+    notif.textContent = msg;
+    notif.classList.add("show");
+    setTimeout(() => notif.classList.remove("show"), 3000);
 }
 
-function kunciForm(){
- document.querySelectorAll("input,select,button").forEach(e=>e.disabled=true);
- sudahAbsen=true;
+function showForm(formId) {
+    document.querySelectorAll('.login-form, .absen-form').forEach(f => f.classList.remove('active'));
+    document.getElementById(formId).classList.add('active');
 }
 
-/* WA */
-function kirimKeWA(nis,nama,no_absen,status,ket){
- const pesan = `ABSENSI SISWA
-${nis}. ${nama} - SUDAH ABSEN
-Status: ${status}
-Keterangan: ${ket || "-"}
-Tanggal: ${new Date().toLocaleDateString()}`;
- window.open("https://wa.me/6285604757431?text="+encodeURIComponent(pesan),"_blank");
+function simpanAbsensi(data) {
+    // Simulasi save ke localStorage (bisa diganti ke server)
+    const absensi = JSON.parse(localStorage.getItem('absensi') || '[]');
+    absensi.push({
+        ...data,
+        timestamp: new Date().toISOString(),
+        id: Date.now()
+    });
+    localStorage.setItem('absensi', JSON.stringify(absensi));
+    
+    // Tampilkan status
+    const badge = document.getElementById("statusBadge");
+    const statusClass = `status-${data.status.toLowerCase()}`;
+    badge.textContent = data.status;
+    badge.className = `status-badge ${statusClass}`;
 }
 
-/* QR */
-const reader = new Html5Qrcode("reader");
-Html5Qrcode.getCameras().then(c=>{
- if(c.length){
-  reader.start(c[0].id,{fps:10,qrbox:250},qr=>{
-   const p=qr.split("|");
-   if(p.length>=3){
-    manualId.value=p[0];
-    manualNama.value=p[1];
-    manualKelas.value=p[2];
-   }
-  });
- }
+/* LOGIN FUNCTION */
+function login(nis, pass) {
+    const siswa = dataSiswa[nis];
+    if (!siswa) {
+        showNotif("❌ NIS tidak ditemukan!");
+        return false;
+    }
+    
+    if (siswa.pass !== pass) {
+        showNotif("❌ Password salah!");
+        return false;
+    }
+    
+    // Login sukses
+    currentUser = { nis, ...siswa };
+    document.getElementById("siswaNIS").textContent = nis;
+    document.getElementById("siswaNama").textContent = siswa.nama;
+    document.getElementById("statusBadge").textContent = "-";
+    document.getElementById("statusBadge").className = "status-badge";
+    
+    showForm("absenForm");
+    showNotif(`✅ Selamat datang, ${siswa.nama}!`);
+    return true;
+}
+
+/* EVENT HANDLERS */
+document.addEventListener('DOMContentLoaded', () => {
+    // Login button
+    document.getElementById("btnLogin").onclick = () => {
+        const nis = document.getElementById("loginNIS").value.trim();
+        const pass = document.getElementById("loginPass").value.trim();
+        
+        if (!nis || !pass) {
+            showNotif("❌ Isi NIS dan Password!");
+            return;
+        }
+        
+        login(nis, pass);
+    };
+    
+    // Enter key login
+    document.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            if (document.getElementById("loginForm").classList.contains('active')) {
+                document.getElementById("btnLogin").click();
+            } else {
+                document.getElementById("kirimAbsen").click();
+            }
+        }
+    });
+    
+    // Absen button
+    document.getElementById("kirimAbsen").onclick = () => {
+        if (!currentUser) return;
+        
+        const kelas = document.getElementById("manualKelas").value.trim();
+        const status = document.getElementById("manualStatus").value;
+        const ket = document.getElementById("manualKet").value.trim();
+        
+        if (!kelas) {
+            showNotif("❌ Isi No Absen/Kelas!");
+            return;
+        }
+        
+        // Simpan absensi
+        const absenData = {
+            nis: currentUser.nis,
+            nama: currentUser.nama,
+            kelas,
+            status,
+            keterangan: ket || "-",
+            tanggal: new Date().toLocaleDateString('id-ID')
+        };
+        
+        simpanAbsensi(absenData);
+        showSuccess();
+        
+        // Disable form
+        document.querySelectorAll('#absenForm input, #absenForm select, #kirimAbsen').forEach(el => {
+            el.disabled = true;
+        });
+        document.getElementById("kirimAbsen").textContent = "✅ Selesai";
+    };
+    
+    // Logout
+    document.getElementById("btnLogout").onclick = () => {
+        currentUser = null;
+        document.querySelectorAll('#absenForm input, #absenForm select, #kirimAbsen').forEach(el => {
+            el.disabled = false;
+        });
+        document.getElementById("kirimAbsen").textContent = "Kirim Absensi";
+        showForm("loginForm");
+    };
+    
+    // QR Login Scanner
+    const qrReader = new Html5Qrcode("qrReader");
+    Html5Qrcode.getCameras().then(devices => {
+        if (devices.length) {
+            const cameraId = devices.find(d => d.facingMode === "environment")?.id || devices[0].id;
+            qrReader.start(
+                cameraId,
+                { fps: 10, qrbox: 200 },
+                (decodedText) => {
+                    const [nis, pass] = decodedText.split('|');
+                    if (nis && pass) {
+                        document.getElementById("loginNIS").value = nis;
+                        document.getElementById("loginPass").value = pass;
+                        setTimeout(() => document.getElementById("btnLogin").click(), 500);
+                    }
+                }
+            ).catch(console.error);
+        }
+    }).catch(console.error);
 });
-
-/* SUBMIT */
-kirimManual.onclick=()=>{
- if(sudahAbsen) return;
-
- const nis=manualId.value.trim();
- const nama=manualNama.value.trim();
- const kelas=manualKelas.value.trim();
- const status=manualStatus.value;
- const ket=manualKet.value.trim();
-
- if(!dataSiswa[nis] || dataSiswa[nis]!==nama){
-  audioSalah.play();
-  showNotif("❌ ABSEN SALAH");
-  return;
- }
-
- audioBenar.play();
- showSuccess();
- kunciForm();
- kirimKeWA(nis,nama,kelas,status,ket);
-};
 </script>
 </body>
 </html>
