@@ -3,13 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Absensi Siswa</title>
+<title>Absensi Siswa - AOS</title>
 <script src="https://unpkg.com/html5-qrcode"></script>
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body { 
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: #ffffff;
     min-height: 100vh;
     padding: 20px;
 }
@@ -22,10 +22,24 @@ body {
     background: white;
     padding: 30px 20px;
     border-radius: 20px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
     margin-bottom: 20px;
 }
-.logo { font-size: 40px; margin-bottom: 10px; }
+.logo { 
+    width: 80px; 
+    height: 80px; 
+    margin: 0 auto 15px;
+    background: #f8f9fa;
+    border-radius: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.logo img {
+    width: 70px;
+    height: 70px;
+    object-fit: contain;
+}
 h1 { color: #2c3e50; font-size: 24px; font-weight: 700; margin-bottom: 15px; }
 .stats {
     display: grid;
@@ -34,20 +48,19 @@ h1 { color: #2c3e50; font-size: 24px; font-weight: 700; margin-bottom: 15px; }
     margin-top: 15px;
 }
 .stat-card {
-    background: rgba(255,255,255,0.3);
-    color: white;
+    background: #f8f9fa;
+    color: #495057;
     padding: 12px 8px;
     border-radius: 12px;
     text-align: center;
-    backdrop-filter: blur(10px);
 }
 .stat-number { font-size: 20px; font-weight: bold; }
-.stat-label { font-size: 11px; opacity: 0.9; }
+.stat-label { font-size: 11px; }
 
 .card { 
     background: white; 
     border-radius: 20px; 
-    box-shadow: 0 10px 30px rgba(0,0,0,0.2); 
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1); 
     overflow: hidden;
 }
 .tabs {
@@ -100,6 +113,11 @@ button:hover:not(:disabled) { background: #1a52d1; }
 button:disabled { background: #ccc; cursor: not-allowed; }
 .btn-secondary { background: #6c757d; }
 .btn-secondary:hover { background: #545b62; }
+.server-only {
+    background: #dc3545 !important;
+    font-size: 12px;
+    padding: 8px;
+}
 
 .profile-card {
     background: linear-gradient(135deg, #346dff, #1a52d1);
@@ -124,6 +142,7 @@ button:disabled { background: #ccc; cursor: not-allowed; }
 }
 .profile-info h3 { margin: 0 0 2px 0; font-size: 18px; }
 .profile-info p { margin: 0; opacity: 0.9; font-size: 14px; }
+.server-profile { background: linear-gradient(135deg, #dc3545, #c82333) !important; }
 
 #reader {
     width: 100%;
@@ -168,6 +187,22 @@ th {
 .status-sakit { background: #f8d7da; color: #721c24; }
 .status-alpa { background: #f5c6cb; color: #721c24; }
 
+.date-filter {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+.date-filter input {
+    max-width: 150px;
+}
+.date-filter button {
+    padding: 10px 15px;
+    font-size: 14px;
+    min-width: 80px;
+}
+
 .success, .notif {
     position: fixed;
     left: 50%;
@@ -202,6 +237,14 @@ th {
     .stats { grid-template-columns: 1fr; }
     .profile-card { flex-direction: column; text-align: center; }
     .tabs { flex-direction: column; }
+    .date-filter { flex-direction: column; }
+}
+
+@media print {
+    body * { visibility: hidden; }
+    .table-container, .table-container * { visibility: visible; }
+    .table-container { position: absolute; left: 0; top: 0; width: 100%; }
+    #dateFilter::before { content: "Data per: " attr(data-print-value); }
 }
 </style>
 </head>
@@ -209,8 +252,11 @@ th {
 
 <div class="container">
     <div class="header">
-        <div class="logo">📚</div>
-        <h1>Absensi Siswa</h1>
+        <div class="logo">
+            <img src="AOS.logo.jpg" alt="AOS Logo" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+            <div style="display:none; font-size:40px;">📚</div>
+        </div>
+        <h1>Absensi Siswa AOS</h1>
         <div class="stats">
             <div class="stat-card">
                 <div class="stat-number" id="totalAbsen">0</div>
@@ -243,6 +289,12 @@ th {
                 <small style="color:#6c757d;">Atau scan QR Code</small>
                 <div id="qrReader" style="margin-top:10px;"></div>
             </div>
+            <div style="margin-top:20px; padding-top:20px; border-top:1px solid #eee;">
+                <h4 style="color:#dc3545; margin-bottom:10px;">🔧 Server Admin</h4>
+                <input id="serverNIS" placeholder="server1234" maxlength="10" />
+                <input id="serverPass" type="password" placeholder="server1234" />
+                <button id="btnServerLogin" style="background:#dc3545;">Server Login</button>
+            </div>
         </div>
 
         <div id="absen" class="tab-content">
@@ -250,7 +302,8 @@ th {
                 <div class="profile-avatar" id="avatar">A</div>
                 <div class="profile-info">
                     <h3 id="siswaNama">-</h3>
-                    <p><strong>NIS:</strong> <span id="siswaNIS">-</span></p>
+                    <p><strong>ID:</strong> <span id="siswaNIS">-</span></p>
+                    <p id="userRole"></p>
                 </div>
             </div>
             <input id="manualKelas" placeholder="Kelas/No.Absen" />
@@ -267,9 +320,19 @@ th {
 
         <div id="history" class="tab-content">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
-                <h3 style="margin:0;">Riwayat Absensi</h3>
-                <button id="clearData" class="btn-secondary" style="padding:8px 12px; font-size:14px;">🗑️ Hapus</button>
+                <h3 style="margin:0;">Riwayat Absensi (April 2024+)</h3>
+                <div>
+                    <button id="printData" class="btn-secondary" style="padding:8px 12px; font-size:14px; margin-right:5px;">🖨️ Cetak</button>
+                    <button id="clearData" class="server-only" style="display:none;">🗑️ Hapus Semua Data</button>
+                </div>
             </div>
+            
+            <div class="date-filter">
+                <input type="month" id="dateFilter" min="2024-04" />
+                <button id="filterBtn">Filter Bulan</button>
+                <button id="clearFilter" class="btn-secondary">Tampilkan Semua</button>
+            </div>
+            
             <div class="table-container">
                 <table>
                     <thead>
@@ -277,11 +340,13 @@ th {
                             <th>Tanggal</th>
                             <th>NIS</th>
                             <th>Nama</th>
+                            <th>Kelas</th>
                             <th>Status</th>
+                            <th>Keterangan</th>
                         </tr>
                     </thead>
                     <tbody id="absenTableBody">
-                        <tr><td colspan="4" style="text-align:center;color:#999;padding:30px;">Belum ada data</td></tr>
+                        <tr><td colspan="6" style="text-align:center;color:#999;padding:30px;">Belum ada data absensi</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -304,8 +369,15 @@ const dataSiswa = {
     "033": { nama: "Wira Surya", pass: "123" }
 };
 
+const SERVER_CREDENTIALS = {
+    nis: "server1234",
+    pass: "server1234"
+};
+
 let currentUser = null;
 let qrReader = null;
+let currentFilter = '';
+let isServer = false;
 
 function showSuccess(msg) {
     const el = document.getElementById("successMsg");
@@ -323,7 +395,9 @@ function showNotif(msg) {
 
 function updateStats() {
     const absensi = JSON.parse(localStorage.getItem('absensi') || '[]');
-    const stats = absensi.reduce((acc, item) => {
+    const validAbsensi = absensi.filter(item => isValidDate(item.tanggal));
+    
+    const stats = validAbsensi.reduce((acc, item) => {
         acc.total++;
         const status = item.status.toLowerCase();
         acc[status] = (acc[status] || 0) + 1;
@@ -335,124 +409,54 @@ function updateStats() {
     document.getElementById("izinCount").textContent = stats.izin;
 }
 
-function renderTable() {
+function isValidDate(dateStr) {
+    const [day, month, year] = dateStr.split('/');
+    const date = new Date(year, month - 1, day);
+    const minDate = new Date('2024-04-01');
+    return date >= minDate && 
+           date.getDate() == day && 
+           date.getMonth() == month - 1 && 
+           date.getFullYear() == year;
+}
+
+function renderTable(filter = '') {
     const absensi = JSON.parse(localStorage.getItem('absensi') || '[]');
-    const tbody = document.getElementById("absenTableBody");
+    const validAbsensi = absensi.filter(item => {
+        if (!isValidDate(item.tanggal)) return false;
+        if (filter && getMonthYear(item.tanggal) !== filter) return false;
+        return true;
+    }).sort((a, b) => new Date(b.tanggal.split('/').reverse().join('-')) - new Date(a.tanggal.split('/').reverse().join('-')));
     
-    if (absensi.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:#999;padding:30px;">Belum ada data</td></tr>';
+    const tbody = document.getElementById("absenTableBody");
+    const clearBtn = document.getElementById("clearData");
+    
+    if (validAbsensi.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#999;padding:30px;">Belum ada data absensi (mulai April 2024)</td></tr>';
+        clearBtn.style.display = 'none';
         return;
     }
     
-    tbody.innerHTML = absensi.slice(-10).map(item => `
+    tbody.innerHTML = validAbsensi.map(item => `
         <tr>
-            <td>${item.tanggal}</td>
-            <td><strong>${item.nis}</strong></td>
+            <td><strong>${item.tanggal}</strong></td>
+            <td>${item.nis}</td>
             <td>${item.nama}</td>
+            <td>${item.kelas}</td>
             <td><span class="status-badge status-${item.status.toLowerCase()}">${item.status}</span></td>
+            <td>${item.keterangan}</td>
         </tr>
     `).join('');
+    
+    clearBtn.style.display = isServer ? 'inline-block' : 'none';
+}
+
+function getMonthYear(dateStr) {
+    const [day, month, year] = dateStr.split('/');
+    return `${year}-${month.padStart(2, '0')}`;
 }
 
 function simpanAbsensi(data) {
     const absensi = JSON.parse(localStorage.getItem('absensi') || '[]');
-    absensi.push({
-        ...data,
-        timestamp: new Date().toISOString()
-    });
-    localStorage.setItem('absensi', JSON.stringify(absensi));
-    updateStats();
-    renderTable();
-    showSuccess("✅ Absensi berhasil!");
-}
-
-function login(nis, pass) {
-    const siswa = dataSiswa[nis];
-    if (!siswa) return showNotif("❌ NIS tidak ditemukan!");
-    if (siswa.pass !== pass) return showNotif("❌ Password salah!");
+    const today = new Date().toLocaleDateString('id-ID');
     
-    currentUser = { nis, ...siswa };
-    document.getElementById("siswaNIS").textContent = nis;
-    document.getElementById("siswaNama").textContent = siswa.nama;
-    document.getElementById("avatar").textContent = siswa.nama[0];
-    document.getElementById("profileCard").style.display = "flex";
-    
-    document.querySelector('[data-tab="absen"]').click();
-    showNotif(`✅ Welcome ${siswa.nama}!`);
-}
-
-function logout() {
-    currentUser = null;
-    document.getElementById("profileCard").style.display = "none";
-    document.querySelector('[data-tab="login"]').click();
-}
-
-// EVENT HANDLERS
-document.addEventListener('DOMContentLoaded', () => {
-    updateStats();
-    renderTable();
-    
-    // Tab switching
-    document.querySelectorAll('.tab').forEach(tab => {
-        tab.onclick = () => {
-            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-            tab.classList.add('active');
-            document.getElementById(tab.dataset.tab).classList.add('active');
-        };
-    });
-    
-    // Login button - FIXED
-    document.getElementById("btnLogin").onclick = () => {
-        const nis = document.getElementById("loginNIS").value.trim();
-        const pass = document.getElementById("loginPass").value.trim();
-        if (!nis || !pass) return showNotif("❌ Isi NIS dan Password!");
-        login(nis, pass);
-    };
-    
-    // Enter key login
-    document.getElementById("loginPass").addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') document.getElementById("btnLogin").click();
-    });
-    
-    // Absen
-    document.getElementById("kirimAbsen").onclick = () => {
-        if (!currentUser) return showNotif("❌ Login dulu!");
-        
-        const kelas = document.getElementById("manualKelas").value.trim();
-        const status = document.getElementById("manualStatus").value;
-        const ket = document.getElementById("manualKet").value.trim();
-        
-        if (!kelas) return showNotif("❌ Isi Kelas/No.Absen!");
-        
-        simpanAbsensi({
-            nis: currentUser.nis,
-            nama: currentUser.nama,
-            kelas, 
-            status, 
-            keterangan: ket || '-',
-            tanggal: new Date().toLocaleDateString('id-ID')
-        });
-        
-        // Reset form
-        document.getElementById("manualKelas").value = "";
-        document.getElementById("manualStatus").value = "Hadir";
-        document.getElementById("manualKet").value = "";
-    };
-    
-    // Logout
-    document.getElementById("btnLogout").onclick = logout;
-    
-    // Clear data
-    document.getElementById("clearData").onclick = () => {
-        if (confirm("Hapus semua data absensi?")) {
-            localStorage.removeItem('absensi');
-            updateStats();
-            renderTable();
-            showSuccess("🗑️ Data dihapus!");
-        }
-    };
-});
-</script>
-</body>
-</html>
+    // Cek duplikat hari ini
