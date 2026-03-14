@@ -7,12 +7,11 @@
 <script src="https://unpkg.com/html5-qrcode"></script>
 
 <style>
-/* === STYLE SAMA PERSIS DENGAN KODEMU === */
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:system-ui;background:#f5f7fb;padding:20px;}
 .container{max-width:500px;margin:auto;}
 .header{background:white;padding:25px;border-radius:20px;text-align:center;box-shadow:0 10px 30px rgba(0,0,0,.1);margin-bottom:20px;}
-.logo{font-size:40px;margin-bottom:10px;}
+.logo img{width:60px; height:60px; object-fit:contain; margin-bottom:10px;}
 .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:15px;}
 .stat-card{background:#f3f5fa;padding:12px;border-radius:12px;text-align:center;}
 .stat-number{font-size:20px;font-weight:bold;}
@@ -48,12 +47,8 @@ th{background:#f5f7fb;position:sticky;top:0;}
 <div class="container">
 
 <div class="header">
-<!-- LOGO DIUBAH MENJADI AOS.logo.jpg -->
 <div class="logo">
-  <img src="AOS.logo.jpg" alt="Logo Sekolah"
-       onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
-       style="width:60px; height:60px; object-fit:contain;">
-  <div style="display:none; font-size:40px;">📚</div>
+  <img src="AOS.jpg" alt="Logo Sekolah">
 </div>
 <h2>Absensi Siswa</h2>
 <div class="stats">
@@ -153,7 +148,6 @@ th{background:#f5f7fb;position:sticky;top:0;}
 <div id="notif" class="notif"></div>
 
 <script>
-/* DATA SISWA */
 const dataSiswa={
 "01":{nama:"Afgan Aditya",pass:"123"},
 "02":{nama:"Andin Amelian",pass:"123"},
@@ -166,15 +160,12 @@ const dataSiswa={
 };
 let currentUser=null;
 
-/* ADMIN LOGIN */
 const ADMIN_USERNAME="admin";
 const ADMIN_PASSWORD="123456";
 
-/* NOTIF & SUCCESS */
 function showNotif(msg){const el=document.getElementById("notif"); el.textContent=msg; el.classList.add("show"); setTimeout(()=>el.classList.remove("show"),2500);}
 function showSuccess(msg){const el=document.getElementById("successMsg"); el.textContent=msg; el.style.display="block"; setTimeout(()=>el.style.display="none",2500);}
 
-/* LOGIN SISWA */
 function login(nis,pass){
 const siswa=dataSiswa[nis];
 if(!siswa){showNotif("NIS tidak ditemukan"); return;}
@@ -189,7 +180,6 @@ showNotif("Login berhasil");
 }
 function logout(){currentUser=null;document.getElementById("profileCard").style.display="none";document.querySelector('[data-tab="login"]').click();}
 
-/* LOGIN ADMIN */
 function loginAdmin(){
 const user=document.getElementById("adminUser").value.trim();
 const pass=document.getElementById("adminPass").value.trim();
@@ -205,7 +195,6 @@ document.getElementById("adminPass").value="";
 showNotif("Admin logout berhasil");
 }
 
-/* ABSENSI */
 function simpanAbsensi(data){
 const absensi=JSON.parse(localStorage.getItem("absensi")||"[]");
 const today=new Date().toLocaleDateString("id-ID");
@@ -227,7 +216,6 @@ keterangan:document.getElementById("manualKet").value
 });
 }
 
-/* TABLE & STATS */
 function renderTable(){
 const data=JSON.parse(localStorage.getItem("absensi")||"[]");
 const tbody=document.getElementById("absenTableBody");
@@ -249,7 +237,6 @@ document.getElementById("hadirCount").textContent=absensi.filter(a=>a.status=="H
 document.getElementById("izinCount").textContent=absensi.filter(a=>a.status=="Izin").length;
 }
 
-/* PRINT & CLEAR ADMIN */
 document.getElementById("printData").onclick=()=>window.print();
 document.getElementById("btnClearAll").onclick=()=>{
 if(confirm("Yakin hapus semua data?")){
@@ -257,7 +244,6 @@ localStorage.removeItem("absensi");renderTable();updateStats();showNotif("Semua 
 }
 }
 
-/* TAB SWITCH */
 document.querySelectorAll(".tab").forEach(tab=>{
 tab.onclick=()=>{
 document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
@@ -267,23 +253,18 @@ document.getElementById(tab.dataset.tab).classList.add("active");
 }
 });
 
-/* EVENTS SISWA */
 document.getElementById("btnLogin").onclick=()=>login(
 document.getElementById("loginNIS").value,
 document.getElementById("loginPass").value
 );
 document.getElementById("btnLogout").onclick=logout;
-
-/* EVENTS ADMIN */
 document.getElementById("btnAdminLogin").onclick=loginAdmin;
 
-/* QR SCANNER */
 const qr=new Html5Qrcode("reader");
 Html5Qrcode.getCameras().then(cameras=>{
 if(cameras.length){qr.start(cameras[0].id,{fps:10,qrbox:200},decoded=>{login(decoded)},error=>{});}
 });
 
-/* INITIAL RENDER */
 renderTable(); updateStats();
 </script>
 
