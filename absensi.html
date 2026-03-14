@@ -48,7 +48,13 @@ th{background:#f5f7fb;position:sticky;top:0;}
 <div class="container">
 
 <div class="header">
-<div class="logo">📚</div>
+<!-- LOGO DIUBAH MENJADI AOS.logo.jpg -->
+<div class="logo">
+  <img src="AOS.logo.jpg" alt="Logo Sekolah"
+       onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
+       style="width:60px; height:60px; object-fit:contain;">
+  <div style="display:none; font-size:40px;">📚</div>
+</div>
 <h2>Absensi Siswa</h2>
 <div class="stats">
 <div class="stat-card">
@@ -158,7 +164,6 @@ const dataSiswa={
 "011":{nama:"Dienda Rafita",pass:"123"},
 "033":{nama:"Wira Surya",pass:"123"}
 };
-
 let currentUser=null;
 
 /* ADMIN LOGIN */
@@ -166,12 +171,8 @@ const ADMIN_USERNAME="admin";
 const ADMIN_PASSWORD="123456";
 
 /* NOTIF & SUCCESS */
-function showNotif(msg){
-const el=document.getElementById("notif"); el.textContent=msg; el.classList.add("show"); setTimeout(()=>el.classList.remove("show"),2500);
-}
-function showSuccess(msg){
-const el=document.getElementById("successMsg"); el.textContent=msg; el.style.display="block"; setTimeout(()=>el.style.display="none",2500);
-}
+function showNotif(msg){const el=document.getElementById("notif"); el.textContent=msg; el.classList.add("show"); setTimeout(()=>el.classList.remove("show"),2500);}
+function showSuccess(msg){const el=document.getElementById("successMsg"); el.textContent=msg; el.style.display="block"; setTimeout(()=>el.style.display="none",2500);}
 
 /* LOGIN SISWA */
 function login(nis,pass){
@@ -195,9 +196,7 @@ const pass=document.getElementById("adminPass").value.trim();
 if(user===ADMIN_USERNAME && pass===ADMIN_PASSWORD){
 document.getElementById("adminPanel").style.display="block";
 showNotif("Login Admin Berhasil");
-}else{
-showNotif("Username / Password Admin Salah");
-}
+}else{showNotif("Username / Password Admin Salah");}
 }
 function logoutAdmin(){
 document.getElementById("adminPanel").style.display="none";
@@ -253,7 +252,9 @@ document.getElementById("izinCount").textContent=absensi.filter(a=>a.status=="Iz
 /* PRINT & CLEAR ADMIN */
 document.getElementById("printData").onclick=()=>window.print();
 document.getElementById("btnClearAll").onclick=()=>{
-if(confirm("Yakin hapus semua data?")){localStorage.removeItem("absensi");renderTable();updateStats();showNotif("Semua data dihapus");}
+if(confirm("Yakin hapus semua data?")){
+localStorage.removeItem("absensi");renderTable();updateStats();showNotif("Semua data dihapus");
+}
 }
 
 /* TAB SWITCH */
