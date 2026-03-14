@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AOS | Absensi Online Siswa</title>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{
+    font-family:'Poppins',sans-serif;
+    background:#f4f7fb;
+    color:#1a2b5f;
+    overflow-x:hidden;
+}
+
+/* ===== LOADING SCREEN ===== */
+#loader{
+    position:fixed;
+    inset:0;
+    background:#f4f7fb;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    z-index:9999;
+    animation:fadeOut 1s ease forwards;
+    animation-delay:1.8s;
+}
+.loader-box{
+    text-align:center;
+    animation:fadeScale 1.2s ease;
+}
+.loader-box img{
+    width:70px;
+    margin-bottom:14px;
+}
+.loader-box h1{
+    letter-spacing:4px;
+    font-size:2.1rem;
+    font-weight:800;
+}
+.loader-box p{opacity:.6}
+
+/* HEADER */
+header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:18px 32px;
+    background:#fff;
+    box-shadow:0 4px 12px rgba(0,0,0,.06);
+}
+.evscientist{font-weight:800;letter-spacing:3px}
+
+/* HAMBURGER */
+.hamburger{
+    width:32px;height:24px;
+    display:flex;
+    flex-direction:column;
+    justify-content:space-between;
+    cursor:pointer;
+}
+.hamburger span{
+    height:4px;
+    background:#346dff;
+    border-radius:2px;
+}
+
+/* SIDEBAR */
+.sidebar{
+    position:fixed;
+    right:-260px;top:0;
+    width:260px;height:100%;
+    background:#346dff;
+    padding:90px 25px;
+    transition:.4s ease;
+    z-index:10;
+}
+.sidebar.active{right:0}
+.sidebar a{
+    display:block;
+    color:#fff;
+    text-decoration:none;
+    margin-bottom:18px;
+    font-size:1.05rem;
+}
+
+/* OVERLAY */
+.overlay{
+    position:fixed;inset:0;
+    background:rgba(0,0,0,.4);
+    display:none;
+}
+.overlay.active{display:block}
+
+/* SECTION */
+.section{
+    display:none;
+    padding:40px 20px;
+    animation:fadeUp .6s ease;
+}
+.section.active{display:block}
+
+/* CARD */
+.card{
+    max-width:1100px;
+    margin:auto;
+    background:rgba(255,255,255,.95);
+    border-radius:18px;
+    padding:40px;
+    box-shadow:0 18px 40px rgba(0,0,0,.08);
+    backdrop-filter:blur(8px);
+}
+
+/* ===== LANDING PAGE ===== */
+.landing-wrapper{
+    min-height:calc(100vh - 80px);
+    display:flex;
+    justify-content:center;
+    align-items:center;
+}
+.landing-card{
+    max-width:520px;
+    width:100%;
+    text-align:center;
+}
+.landing-logo{
+    width:90px;
+    margin-bottom:18px;
+    animation:fadeScale 1s ease;
+}
+.landing-title{
+    font-size:2.6rem;
+    font-weight:800;
+    letter-spacing:4px;
+    margin-bottom:12px;
+}
+.landing-sub{
+    font-size:1rem;
+    opacity:.7;
+    margin-bottom:35px;
+}
+.landing-btn{
+    width:100%;
+    padding:14px;
+    background:#346dff;
+    color:#fff;
+    border:none;
+    border-radius:10px;
+    font-weight:600;
+    cursor:pointer;
+    transition:.3s;
+}
+.landing-btn:hover{
+    transform:translateY(-3px);
+    box-shadow:0 14px 30px rgba(0,0,0,.15);
+}
+
+/* DASHBOARD */
+#dashboard{
+    background:linear-gradient(135deg,#e6efff,#f4f7ff);
+}
+
+/* STATS */
+.stats{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(160px,1fr));
+    gap:20px;
+    margin:25px 0;
+}
+.stat{
+    padding:24px;
+    border-radius:16px;
+    color:#fff;
+    text-align:center;
+}
+.hadir{background:#22c55e}
+.izin{background:#3b82f6}
+.sakit{background:#facc15}
+.alpha{background:#ef4444}
+
+/* SISWA */
+.student-list{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+    gap:18px;
+    margin-top:30px;
+}
+.student{
+    background:#fff;
+    padding:18px;
+    border-radius:14px;
+    box-shadow:0 8px 18px rgba(0,0,0,.08);
+}
+.student button{
+    margin-top:10px;
+    width:100%;
+    padding:10px;
+    border:none;
+    background:#346dff;
+    color:#fff;
+    border-radius:8px;
+}
+
+/* MODAL */
+.modal{
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,.5);
+    display:none;
+    justify-content:center;
+    align-items:center;
+}
+.modal.active{display:flex}
+.modal-content{
+    background:#fff;
+    padding:30px;
+    border-radius:16px;
+    width:90%;
+    max-width:420px;
+}
+
+/* ANIMATION */
+@keyframes fadeUp{
+    from{opacity:0;transform:translateY(30px)}
+    to{opacity:1;transform:translateY(0)}
+}
+@keyframes fadeScale{
+    from{opacity:0;transform:scale(.95)}
+    to{opacity:1;transform:scale(1)}
+}
+@keyframes fadeOut{
+    to{opacity:0;visibility:hidden}
+}
+</style>
+</head>
+
+<body>
+
+<!-- LOADER -->
+<div id="loader">
+    <div class="loader-box">
+        <img src="AOS_logo.jpg" alt="AOS Logo">
+        <h1>EVSCIENTIST FIVE</h1>
+        <p>Loading System...</p>
+    </div>
+</div>
+
+<header>
+    <div class="evscientist">EVSCIENTIST FIVE</div>
+    <div class="hamburger" id="hamburger">
+        <span></span><span></span><span></span>
+    </div>
+</header>
+
+<div class="sidebar" id="sidebar">
+    <a href="#" data-section="home">Home</a>
+    <a href="#" data-section="dashboard">Dashboard</a>
+</div>
+<div class="overlay" id="overlay"></div>
+
+<!-- HOME -->
+<section class="section active" id="home">
+    <div class="landing-wrapper">
+        <div class="card landing-card">
+            <!-- TAMBAHAN LOGO -->
+            <img src="AOS_logo.jpg" alt="AOS Logo" class="landing-logo">
+
+            <h1 class="landing-title">EVSCIENTIST FIVE</h1>
+            <p class="landing-sub">
+                Absensi Online Siswa · Smart Digital Attendance System
+            </p>
+            <button class="landing-btn" onclick="location.href='absensi.html'">
+                Masuk ke Sistem Absensi
+            </button>
+        </div>
+    </div>
+</section>
+
+<!-- DASHBOARD -->
+<section class="section" id="dashboard">
+    <div class="card">
+        <h1>Dashboard Absensi</h1>
+
+        <div class="stats">
+            <div class="stat hadir"><h3 id="hadir">0</h3>Hadir</div>
+            <div class="stat izin"><h3 id="izin">0</h3>Izin</div>
+            <div class="stat sakit"><h3 id="sakit">0</h3>Sakit</div>
+            <div class="stat alpha"><h3 id="alpha">0</h3>Alpha</div>
+        </div>
+
+        <canvas id="chart" height="120"></canvas>
+
+        <h2 style="margin-top:40px">Daftar Siswa</h2>
+        <div class="student-list" id="students"></div>
+    </div>
+</section>
+
+<script>
+const hamburger=document.getElementById("hamburger");
+const sidebar=document.getElementById("sidebar");
+const overlay=document.getElementById("overlay");
+
+hamburger.onclick=()=>{
+    sidebar.classList.toggle("active");
+    overlay.classList.toggle("active");
+};
+overlay.onclick=()=>{
+    sidebar.classList.remove("active");
+    overlay.classList.remove("active");
+};
+document.querySelectorAll("[data-section]").forEach(l=>{
+    l.onclick=e=>{
+        e.preventDefault();
+        document.querySelectorAll(".section").forEach(s=>s.classList.remove("active"));
+        document.getElementById(l.dataset.section).classList.add("active");
+        sidebar.classList.remove("active");
+        overlay.classList.remove("active");
+    };
+});
+</script>
+
+</body>
+</html>
