@@ -5,13 +5,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Absensi Siswa</title>
 <script src="https://unpkg.com/html5-qrcode"></script>
-
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:system-ui;background:#f5f7fb;padding:20px;}
 .container{max-width:500px;margin:auto;}
 .header{background:white;padding:25px;border-radius:20px;text-align:center;box-shadow:0 10px 30px rgba(0,0,0,.1);margin-bottom:20px;}
-.logo img{width:60px; height:60px; object-fit:contain; margin-bottom:10px;}
+.logo img{width:60px;height:60px;object-fit:contain;margin-bottom:10px;}
 .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:15px;}
 .stat-card{background:#f3f5fa;padding:12px;border-radius:12px;text-align:center;}
 .stat-number{font-size:20px;font-weight:bold;}
@@ -42,28 +41,17 @@ th{background:#f5f7fb;position:sticky;top:0;}
 .notif.show{opacity:1;}
 </style>
 </head>
-
 <body>
 <div class="container">
-
 <div class="header">
 <div class="logo">
   <img src="AOS.jpg" alt="Logo Sekolah">
 </div>
 <h2>Absensi Siswa</h2>
 <div class="stats">
-<div class="stat-card">
-<div class="stat-number" id="totalAbsen">0</div>
-<div>Total</div>
-</div>
-<div class="stat-card">
-<div class="stat-number" id="hadirCount">0</div>
-<div>Hadir</div>
-</div>
-<div class="stat-card">
-<div class="stat-number" id="izinCount">0</div>
-<div>Izin</div>
-</div>
+<div class="stat-card"><div class="stat-number" id="totalAbsen">0</div><div>Total</div></div>
+<div class="stat-card"><div class="stat-number" id="hadirCount">0</div><div>Hadir</div></div>
+<div class="stat-card"><div class="stat-number" id="izinCount">0</div><div>Izin</div></div>
 </div>
 </div>
 
@@ -73,15 +61,14 @@ th{background:#f5f7fb;position:sticky;top:0;}
 <div class="tab active" data-tab="login">Login</div>
 <div class="tab" data-tab="absen">Absen</div>
 <div class="tab" data-tab="history">Riwayat</div>
-<div class="tab" data-tab="admin">Admin</div>
 </div>
 
-<!-- LOGIN SISWA -->
+<!-- LOGIN UNIVERSAL -->
 <div id="login" class="tab-content active">
-<input id="loginNIS" placeholder="NIS">
+<input id="loginNIS" placeholder="NIS / Username Admin">
 <input type="password" id="loginPass" placeholder="Password">
 <button id="btnLogin">Login</button>
-<center style="margin:10px 0">atau scan QR</center>
+<center style="margin:10px 0">atau scan QR (siswa)</center>
 <div id="reader"></div>
 </div>
 
@@ -94,7 +81,6 @@ th{background:#f5f7fb;position:sticky;top:0;}
 <div>NIS : <span id="siswaNIS"></span></div>
 </div>
 </div>
-
 <input id="manualKelas" placeholder="Kelas / No Absen">
 <select id="manualStatus">
 <option value="Hadir">Hadir</option>
@@ -114,12 +100,7 @@ th{background:#f5f7fb;position:sticky;top:0;}
 <table>
 <thead>
 <tr>
-<th>Tanggal</th>
-<th>NIS</th>
-<th>Nama</th>
-<th>Kelas</th>
-<th>Status</th>
-<th>Ket</th>
+<th>Tanggal</th><th>NIS</th><th>Nama</th><th>Kelas</th><th>Status</th><th>Ket</th>
 </tr>
 </thead>
 <tbody id="absenTableBody">
@@ -129,16 +110,10 @@ th{background:#f5f7fb;position:sticky;top:0;}
 </div>
 </div>
 
-<!-- LOGIN ADMIN -->
-<div id="admin" class="tab-content">
-<input id="adminUser" placeholder="Username Admin">
-<input type="password" id="adminPass" placeholder="Password Admin">
-<button id="btnAdminLogin">Login Admin</button>
-
-<div id="adminPanel" style="display:none; margin-top:10px;">
+<!-- PANEL ADMIN -->
+<div id="adminPanel" style="display:none; margin-top:15px;">
 <button id="btnClearAll" class="btn-secondary">Hapus Semua Data</button>
-<button onclick="logoutAdmin()" class="btn-secondary">Logout Admin</button>
-</div>
+<button id="btnAdminLogout" class="btn-secondary">Logout Admin</button>
 </div>
 
 </div>
@@ -166,61 +141,74 @@ const ADMIN_PASSWORD="123456";
 function showNotif(msg){const el=document.getElementById("notif"); el.textContent=msg; el.classList.add("show"); setTimeout(()=>el.classList.remove("show"),2500);}
 function showSuccess(msg){const el=document.getElementById("successMsg"); el.textContent=msg; el.style.display="block"; setTimeout(()=>el.style.display="none",2500);}
 
-function login(nis,pass){
-const siswa=dataSiswa[nis];
-if(!siswa){showNotif("NIS tidak ditemukan"); return;}
-if(pass && siswa.pass!==pass){showNotif("Password salah"); return;}
-currentUser={nis,...siswa};
-document.getElementById("siswaNama").textContent=siswa.nama;
-document.getElementById("siswaNIS").textContent=nis;
-document.getElementById("avatar").textContent=siswa.nama[0];
-document.getElementById("profileCard").style.display="flex";
-document.querySelector('[data-tab="absen"]').click();
-showNotif("Login berhasil");
+function loginUniversal(username,password){
+  if(username===ADMIN_USERNAME && password===ADMIN_PASSWORD){
+    document.getElementById("adminPanel").style.display="block";
+    document.querySelector('[data-tab="absen"]').classList.remove("active");
+    document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
+    document.querySelector('[data-tab="login"]').classList.add("active");
+    showNotif("Login Admin Berhasil");
+    return;
+  }
+  const siswa=dataSiswa[username];
+  if(!siswa){showNotif("NIS/Username tidak ditemukan"); return;}
+  if(password!==siswa.pass){showNotif("Password salah"); return;}
+  currentUser={nis: username,...siswa};
+  document.getElementById("siswaNama").textContent=siswa.nama;
+  document.getElementById("siswaNIS").textContent=username;
+  document.getElementById("avatar").textContent=siswa.nama[0];
+  document.getElementById("profileCard").style.display="flex";
+  document.querySelector('[data-tab="absen"]').click();
+  showNotif("Login Siswa Berhasil");
 }
-function logout(){currentUser=null;document.getElementById("profileCard").style.display="none";document.querySelector('[data-tab="login"]').click();}
 
-function loginAdmin(){
-const user=document.getElementById("adminUser").value.trim();
-const pass=document.getElementById("adminPass").value.trim();
-if(user===ADMIN_USERNAME && pass===ADMIN_PASSWORD){
-document.getElementById("adminPanel").style.display="block";
-showNotif("Login Admin Berhasil");
-}else{showNotif("Username / Password Admin Salah");}
+function logout(){
+  currentUser=null;
+  document.getElementById("profileCard").style.display="none";
+  document.querySelector('[data-tab="login"]').click();
 }
-function logoutAdmin(){
-document.getElementById("adminPanel").style.display="none";
-document.getElementById("adminUser").value="";
-document.getElementById("adminPass").value="";
-showNotif("Admin logout berhasil");
+
+document.getElementById("btnLogin").onclick=()=>{
+  loginUniversal(
+    document.getElementById("loginNIS").value.trim(),
+    document.getElementById("loginPass").value.trim()
+  );
+}
+
+document.getElementById("btnLogout").onclick=logout;
+document.getElementById("btnAdminLogout").onclick=()=>{
+  document.getElementById("adminPanel").style.display="none";
+  showNotif("Admin logout berhasil");
 }
 
 function simpanAbsensi(data){
-const absensi=JSON.parse(localStorage.getItem("absensi")||"[]");
-const today=new Date().toLocaleDateString("id-ID");
-if(absensi.some(a=>a.nis==data.nis&&a.tanggal==today)){showNotif("Sudah absen hari ini"); return;}
-absensi.push(data); localStorage.setItem("absensi",JSON.stringify(absensi));
-renderTable(); updateStats(); showSuccess("Absensi berhasil");
+  const absensi=JSON.parse(localStorage.getItem("absensi")||"[]");
+  const today=new Date().toLocaleDateString("id-ID");
+  if(absensi.some(a=>a.nis==data.nis && a.tanggal==today)){showNotif("Sudah absen hari ini"); return;}
+  absensi.push(data);
+  localStorage.setItem("absensi",JSON.stringify(absensi));
+  renderTable(); updateStats(); showSuccess("Absensi berhasil");
 }
+
 document.getElementById("kirimAbsen").onclick=()=>{
-if(!currentUser){showNotif("Login dulu"); return;}
-const kelas=document.getElementById("manualKelas").value;
-if(!kelas){showNotif("Isi kelas"); return;}
-simpanAbsensi({
-tanggal:new Date().toLocaleDateString("id-ID"),
-nis:currentUser.nis,
-nama:currentUser.nama,
-kelas:kelas,
-status:document.getElementById("manualStatus").value,
-keterangan:document.getElementById("manualKet").value
-});
+  if(!currentUser){showNotif("Login dulu"); return;}
+  const kelas=document.getElementById("manualKelas").value;
+  if(!kelas){showNotif("Isi kelas"); return;}
+  simpanAbsensi({
+    tanggal:new Date().toLocaleDateString("id-ID"),
+    nis:currentUser.nis,
+    nama:currentUser.nama,
+    kelas:kelas,
+    status:document.getElementById("manualStatus").value,
+    keterangan:document.getElementById("manualKet").value
+  });
 }
 
 function renderTable(){
-const data=JSON.parse(localStorage.getItem("absensi")||"[]");
-const tbody=document.getElementById("absenTableBody");
-if(data.length==0){tbody.innerHTML='<tr><td colspan="6" align="center">Belum ada data</td></tr>'; return;}
-tbody.innerHTML=data.reverse().map(d=>`
+  const data=JSON.parse(localStorage.getItem("absensi")||"[]");
+  const tbody=document.getElementById("absenTableBody");
+  if(data.length==0){tbody.innerHTML='<tr><td colspan="6" align="center">Belum ada data</td></tr>'; return;}
+  tbody.innerHTML=data.reverse().map(d=>`
 <tr>
 <td>${d.tanggal}</td>
 <td>${d.nis}</td>
@@ -230,43 +218,44 @@ tbody.innerHTML=data.reverse().map(d=>`
 <td>${d.keterangan}</td>
 </tr>`).join("");
 }
+
 function updateStats(){
-const absensi=JSON.parse(localStorage.getItem("absensi")||"[]");
-document.getElementById("totalAbsen").textContent=absensi.length;
-document.getElementById("hadirCount").textContent=absensi.filter(a=>a.status=="Hadir").length;
-document.getElementById("izinCount").textContent=absensi.filter(a=>a.status=="Izin").length;
+  const absensi=JSON.parse(localStorage.getItem("absensi")||"[]");
+  document.getElementById("totalAbsen").textContent=absensi.length;
+  document.getElementById("hadirCount").textContent=absensi.filter(a=>a.status=="Hadir").length;
+  document.getElementById("izinCount").textContent=absensi.filter(a=>a.status=="Izin").length;
 }
 
 document.getElementById("printData").onclick=()=>window.print();
 document.getElementById("btnClearAll").onclick=()=>{
-if(confirm("Yakin hapus semua data?")){
-localStorage.removeItem("absensi");renderTable();updateStats();showNotif("Semua data dihapus");
-}
+  if(confirm("Yakin hapus semua data?")){
+    localStorage.removeItem("absensi");
+    renderTable();
+    updateStats();
+    showNotif("Semua data dihapus");
+  }
 }
 
 document.querySelectorAll(".tab").forEach(tab=>{
-tab.onclick=()=>{
-document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
-document.querySelectorAll(".tab-content").forEach(c=>c.classList.remove("active"));
-tab.classList.add("active");
-document.getElementById(tab.dataset.tab).classList.add("active");
-}
+  tab.onclick=()=>{
+    document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
+    document.querySelectorAll(".tab-content").forEach(c=>c.classList.remove("active"));
+    tab.classList.add("active");
+    document.getElementById(tab.dataset.tab).classList.add("active");
+  }
 });
 
-document.getElementById("btnLogin").onclick=()=>login(
-document.getElementById("loginNIS").value,
-document.getElementById("loginPass").value
-);
-document.getElementById("btnLogout").onclick=logout;
-document.getElementById("btnAdminLogin").onclick=loginAdmin;
-
+// QR Scanner Siswa
 const qr=new Html5Qrcode("reader");
 Html5Qrcode.getCameras().then(cameras=>{
-if(cameras.length){qr.start(cameras[0].id,{fps:10,qrbox:200},decoded=>{login(decoded)},error=>{});}
+  if(cameras.length){
+    qr.start(cameras[0].id,{fps:10,qrbox:200},decoded=>{
+      loginUniversal(decoded, ""); // QR cuma NIS
+    }, error=>{});
+  }
 });
 
 renderTable(); updateStats();
 </script>
-
 </body>
 </html>
