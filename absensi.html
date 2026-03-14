@@ -8,12 +8,24 @@
 <style>
 /* Reset & global */
 *{box-sizing:border-box;margin:0;padding:0;font-family:'Segoe UI',sans-serif;}
-body{background:#f4f6fc;padding:20px;display:flex;justify-content:center;}
-.container{max-width:450px;margin:auto;padding:20px;} /* layout simple */
+body{background:#f4f6fc; min-height:100vh;}
 
-/* Header & Logo */
+/* Layout profesional */
+.container{max-width:800px; margin:40px auto; padding:20px;}
+
+/* Logo */
+.logo img{width:120px;height:120px;margin:0 auto 20px;display:block;object-fit:contain;}
+
+/* Login Page */
+#loginPage{background:white; padding:40px; border-radius:15px; box-shadow:0 5px 20px rgba(0,0,0,0.1);}
+#loginPage h2{text-align:center; margin-bottom:30px; color:#333;}
+#loginPage input, #loginPage button{width:100%; padding:15px; margin:10px 0; border-radius:10px; font-size:16px; border:1px solid #e1e4ec;}
+#loginPage button{background:#346dff; color:white; border:none; font-weight:600; cursor:pointer;}
+#loginPage button:hover{background:#2457e6;}
+
+/* Dashboard Page */
+#dashboardPage{display:none;}
 .header{ background:white; border-radius:20px; padding:20px; text-align:center; box-shadow:0 8px 20px rgba(0,0,0,0.08); margin-bottom:20px; }
-.logo img{width:70px;height:70px;margin-bottom:10px;object-fit:contain;}
 .header h2{font-weight:600;color:#333;margin-bottom:10px;}
 
 /* Dashboard Stats */
@@ -27,8 +39,6 @@ body{background:#f4f6fc;padding:20px;display:flex;justify-content:center;}
 .tabs{ display:flex; background:#e6e9f5; border-radius:12px; overflow:hidden; margin-bottom:20px; }
 .tab{ flex:1; text-align:center; padding:12px 0; cursor:pointer; font-weight:600; color:#666; transition:0.3s; }
 .tab.active{background:white;color:#346dff;border-bottom:3px solid #346dff;}
-
-/* Tab content */
 .tab-content{display:none;background:white;border-radius:15px;padding:20px;box-shadow:0 5px 15px rgba(0,0,0,0.05);}
 .tab-content.active{display:block;}
 
@@ -58,25 +68,21 @@ th{background:#f4f6fc;position:sticky;top:0;text-align:left;}
 .success{ position:fixed;top:20px;left:50%; transform:translateX(-50%); background:#28a745;color:white;padding:12px 20px;border-radius:10px;display:none; }
 .notif{ position:fixed;bottom:20px;left:50%; transform:translateX(-50%); background:#dc3545;color:white;padding:12px 20px;border-radius:10px; opacity:0;transition:.3s; }
 .notif.show{opacity:1;}
-
-/* Login page style */
-#loginPage{display:block;}
-#dashboardPage{display:none;}
 </style>
 </head>
 <body>
 <div class="container">
 
-<!-- ===== Login Page ===== -->
+<!-- Login Page -->
 <div id="loginPage">
   <div class="logo"><img src="AOS.jpg" alt="Logo Sekolah"></div>
-  <h2 style="text-align:center;">Login Absensi</h2>
+  <h2>Login Absensi</h2>
   <input id="loginNIS" placeholder="NIS">
   <input type="password" id="loginPass" placeholder="Password">
   <button id="btnLogin">Login</button>
 </div>
 
-<!-- ===== Dashboard Page ===== -->
+<!-- Dashboard Page -->
 <div id="dashboardPage">
   <div class="header">
     <div class="logo"><img src="AOS.jpg" alt="Logo Sekolah"></div>
@@ -117,7 +123,7 @@ th{background:#f4f6fc;position:sticky;top:0;text-align:left;}
 
   <div id="history" class="tab-content">
     <button id="printData" class="btn-secondary">Print</button>
-    <button id="btnClearAll" class="btn-secondary">Hapus Semua Data</button>
+    <button id="btnClearAll" class="btn-secondary" style="display:none">Hapus Semua Data</button>
     <div class="table-container">
       <table>
         <thead>
@@ -157,7 +163,6 @@ let currentUser=null;
 let isAdmin=false;
 const ADMIN_PASSWORD="123456";
 
-/* Notif & Success */
 function showNotif(msg){const el=document.getElementById("notif");el.textContent=msg;el.classList.add("show");setTimeout(()=>el.classList.remove("show"),2500);}
 function showSuccess(msg){const el=document.getElementById("successMsg");el.textContent=msg;el.style.display="block";setTimeout(()=>el.style.display="none",2500);}
 
@@ -186,6 +191,9 @@ function goDashboard(){
   document.getElementById("siswaNIS").textContent=currentUser.nis;
   document.getElementById("avatar").textContent=currentUser.nama[0];
   document.getElementById("profileCard").style.display="flex";
+
+  // Tampilkan tombol hapus hanya admin
+  if(isAdmin) document.getElementById("btnClearAll").style.display="inline-block";
 }
 
 /* Logout */
@@ -247,14 +255,13 @@ function updateStats(){
 /* Print & Clear */
 document.getElementById("printData").onclick=()=>window.print();
 document.getElementById("btnClearAll").onclick=()=>{
-  if(!isAdmin){showNotif("Hanya admin yang bisa menghapus data"); return;}
+  if(!isAdmin) return;
   if(confirm("Yakin hapus semua data?")){ localStorage.removeItem("absensi"); renderTable(); updateStats(); showNotif("Semua data dihapus"); }
 };
 
 /* Tab switch */
 document.querySelectorAll(".tab").forEach(tab=>{
   tab.onclick=()=>{
-    if(tab.dataset.tab==="absen" && !currentUser){ showNotif("Login dulu untuk mengakses Absen"); return; }
     document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
     document.querySelectorAll(".tab-content").forEach(c=>c.classList.remove("active"));
     tab.classList.add("active");
@@ -266,7 +273,6 @@ document.querySelectorAll(".tab").forEach(tab=>{
 const qr=new Html5Qrcode("reader");
 Html5Qrcode.getCameras().then(cameras=>{
   if(cameras.length){qr.start(cameras[0].id,{fps:10,qrbox:200},decoded=>{
-    // Login via QR
     if(dataSiswa[decoded]){
       currentUser={nis:decoded,nama:dataSiswa[decoded].nama};
       goDashboard();
