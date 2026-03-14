@@ -4,474 +4,503 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Absensi Siswa</title>
+
 <script src="https://unpkg.com/html5-qrcode"></script>
+
 <style>
-* { box-sizing: border-box; margin: 0; padding: 0; }
-body { 
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    background: #ffffff;
-    min-height: 100vh;
-    padding: 20px;
-}
-.container {
-    max-width: 500px;
-    margin: 0 auto;
-}
-.header {
-    text-align: center;
-    background: white;
-    padding: 30px 20px;
-    border-radius: 20px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-    margin-bottom: 20px;
-}
-.logo { 
-    width: 80px; 
-    height: 80px; 
-    margin: 0 auto 15px;
-    background: #f8f9fa;
-    border-radius: 15px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 40px;
-}
-.logo img {
-    width: 70px;
-    height: 70px;
-    object-fit: contain;
-}
-h1 { color: #2c3e50; font-size: 24px; font-weight: 700; margin-bottom: 15px; }
-.stats {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 10px;
-    margin-top: 15px;
-}
-.stat-card {
-    background: #f8f9fa;
-    color: #495057;
-    padding: 12px 8px;
-    border-radius: 12px;
-    text-align: center;
-}
-.stat-number { font-size: 20px; font-weight: bold; }
-.stat-label { font-size: 11px; }
 
-.card { 
-    background: white; 
-    border-radius: 20px; 
-    box-shadow: 0 10px 30px rgba(0,0,0,0.1); 
-    overflow: hidden;
-}
-.tabs {
-    display: flex;
-    background: #f8f9fa;
-}
-.tab {
-    flex: 1;
-    padding: 15px 10px;
-    text-align: center;
-    cursor: pointer;
-    font-weight: 600;
-    font-size: 14px;
-    border-bottom: 3px solid transparent;
-    transition: 0.3s;
-    color: #6c757d;
-}
-.tab.active {
-    color: #346dff;
-    background: white;
-    border-bottom-color: #346dff;
-}
-.tab-content { display: none; padding: 25px; }
-.tab-content.active { display: block; }
+*{box-sizing:border-box;margin:0;padding:0}
 
-input, select, button { 
-    width: 100%; 
-    margin: 10px 0; 
-    padding: 14px;
-    border-radius: 12px;
-    border: 1px solid #e9ecef;
-    font-size: 16px;
-    transition: 0.3s;
-    background: white;
-}
-input:focus, select:focus { 
-    outline: none; 
-    border-color: #346dff; 
-    box-shadow: 0 0 0 3px rgba(52,109,255,0.1);
-}
-button { 
-    background: #346dff; 
-    color: #fff; 
-    border: none; 
-    font-weight: 600;
-    cursor: pointer;
-    margin: 5px 0;
-}
-button:hover:not(:disabled) { background: #1a52d1; }
-button:disabled { background: #ccc; cursor: not-allowed; }
-.btn-secondary { background: #6c757d; }
-.btn-secondary:hover { background: #545b62; }
-.server-only {
-    background: #dc3545 !important;
-    font-size: 12px;
-    padding: 8px;
+body{
+font-family:system-ui;
+background:#f5f7fb;
+padding:20px;
 }
 
-.profile-card {
-    background: linear-gradient(135deg, #346dff, #1a52d1);
-    color: white;
-    padding: 20px;
-    border-radius: 15px;
-    margin-bottom: 20px;
-    display: flex;
-    align-items: center;
-    gap: 15px;
-}
-.profile-avatar {
-    width: 50px;
-    height: 50px;
-    background: rgba(255,255,255,0.2);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 20px;
-    font-weight: bold;
-}
-.profile-info h3 { margin: 0 0 2px 0; font-size: 18px; }
-.profile-info p { margin: 0; opacity: 0.9; font-size: 14px; }
-
-#reader {
-    width: 100%;
-    height: 200px;
-    border-radius: 12px;
-    overflow: hidden;
-    margin: 10px 0;
-    background: #f8f9fa;
-    border: 2px dashed #dee2e6;
+.container{
+max-width:500px;
+margin:auto;
 }
 
-.table-container {
-    max-height: 400px;
-    overflow-y: auto;
-    border-radius: 12px;
-}
-table {
-    width: 100%;
-    border-collapse: collapse;
-}
-th, td {
-    padding: 12px 8px;
-    text-align: left;
-    border-bottom: 1px solid #eee;
-    font-size: 14px;
-}
-th {
-    background: #f8f9fa;
-    font-weight: 600;
-    color: #495057;
-    position: sticky;
-    top: 0;
-}
-.status-badge {
-    padding: 4px 12px;
-    border-radius: 20px;
-    font-size: 11px;
-    font-weight: 600;
-}
-.status-hadir { background: #d4edda; color: #155724; }
-.status-izin { background: #fff3cd; color: #856404; }
-.status-sakit { background: #f8d7da; color: #721c24; }
-.status-alpa { background: #f5c6cb; color: #721c24; }
-
-.date-filter {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 15px;
-    align-items: center;
-}
-.date-filter input {
-    max-width: 150px;
-}
-.date-filter button {
-    padding: 10px 15px;
-    font-size: 14px;
-    min-width: 80px;
+.header{
+background:white;
+padding:25px;
+border-radius:20px;
+text-align:center;
+box-shadow:0 10px 30px rgba(0,0,0,.1);
+margin-bottom:20px;
 }
 
-.success, .notif {
-    position: fixed;
-    left: 50%;
-    transform: translateX(-50%);
-    padding: 15px 25px;
-    border-radius: 12px;
-    font-weight: 600;
-    font-size: 14px;
-    z-index: 1000;
-    max-width: 90vw;
-}
-.success {
-    top: 20px;
-    background: #28a745;
-    color: white;
-    box-shadow: 0 8px 25px rgba(0,0,0,0.2);
-    display: none;
-}
-.notif {
-    bottom: 30px;
-    background: rgba(220,53,69,0.95);
-    color: white;
-    box-shadow: 0 8px 25px rgba(0,0,0,0.2);
-    opacity: 0;
-    transition: 0.3s;
-}
-.notif.show { opacity: 1; }
-
-@media (max-width: 480px) {
-    body { padding: 15px; }
-    .container { max-width: 100%; }
-    .stats { grid-template-columns: 1fr; }
-    .profile-card { flex-direction: column; text-align: center; }
-    .tabs { flex-direction: column; }
-    .date-filter { flex-direction: column; }
+.logo{
+font-size:40px;
+margin-bottom:10px;
 }
 
-@media print {
-    body * { visibility: hidden; }
-    .table-container, .table-container * { visibility: visible; }
-    .table-container { position: absolute; left: 0; top: 0; width: 100%; }
+.stats{
+display:grid;
+grid-template-columns:repeat(3,1fr);
+gap:10px;
+margin-top:15px;
 }
+
+.stat-card{
+background:#f3f5fa;
+padding:12px;
+border-radius:12px;
+text-align:center;
+}
+
+.stat-number{
+font-size:20px;
+font-weight:bold;
+}
+
+.card{
+background:white;
+border-radius:20px;
+overflow:hidden;
+box-shadow:0 10px 30px rgba(0,0,0,.1);
+}
+
+.tabs{
+display:flex;
+background:#f3f5fa;
+}
+
+.tab{
+flex:1;
+padding:15px;
+text-align:center;
+cursor:pointer;
+font-weight:600;
+color:#666;
+}
+
+.tab.active{
+background:white;
+color:#346dff;
+border-bottom:3px solid #346dff;
+}
+
+.tab-content{
+display:none;
+padding:25px;
+}
+
+.tab-content.active{
+display:block;
+}
+
+input,select,button{
+width:100%;
+padding:14px;
+margin:8px 0;
+border-radius:10px;
+border:1px solid #e1e4ec;
+font-size:16px;
+}
+
+button{
+background:#346dff;
+color:white;
+border:none;
+font-weight:600;
+cursor:pointer;
+}
+
+button:hover{
+background:#2457e6;
+}
+
+.btn-secondary{
+background:#6c757d;
+}
+
+#reader{
+width:100%;
+height:220px;
+border-radius:12px;
+overflow:hidden;
+margin-top:10px;
+}
+
+.profile-card{
+background:linear-gradient(135deg,#346dff,#2047c7);
+color:white;
+padding:18px;
+border-radius:15px;
+display:flex;
+align-items:center;
+gap:12px;
+margin-bottom:15px;
+}
+
+.profile-avatar{
+width:50px;
+height:50px;
+border-radius:50%;
+background:rgba(255,255,255,.2);
+display:flex;
+align-items:center;
+justify-content:center;
+font-size:20px;
+font-weight:bold;
+}
+
+.table-container{
+max-height:350px;
+overflow:auto;
+}
+
+table{
+width:100%;
+border-collapse:collapse;
+}
+
+th,td{
+padding:10px;
+font-size:13px;
+border-bottom:1px solid #eee;
+}
+
+th{
+background:#f5f7fb;
+position:sticky;
+top:0;
+}
+
+.status-badge{
+padding:4px 10px;
+border-radius:20px;
+font-size:11px;
+font-weight:600;
+}
+
+.status-hadir{background:#d4edda;color:#155724}
+.status-izin{background:#fff3cd;color:#856404}
+.status-sakit{background:#f8d7da;color:#721c24}
+.status-alpa{background:#f5c6cb;color:#721c24}
+
+.success{
+position:fixed;
+top:20px;
+left:50%;
+transform:translateX(-50%);
+background:#28a745;
+color:white;
+padding:12px 20px;
+border-radius:10px;
+display:none;
+}
+
+.notif{
+position:fixed;
+bottom:20px;
+left:50%;
+transform:translateX(-50%);
+background:#dc3545;
+color:white;
+padding:12px 20px;
+border-radius:10px;
+opacity:0;
+transition:.3s;
+}
+
+.notif.show{
+opacity:1;
+}
+
 </style>
 </head>
+
 <body>
 
 <div class="container">
-    <div class="header">
-        <div class="logo">
-            <img src="AOS.logo.jpg" alt="AOS Logo" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-            <div style="display:none; font-size:40px;">📚</div>
-        </div>
-        <h1>Absensi Siswa</h1>
-        <div class="stats">
-            <div class="stat-card">
-                <div class="stat-number" id="totalAbsen">0</div>
-                <div class="stat-label">Total</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-number" id="hadirCount">0</div>
-                <div class="stat-label">Hadir</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-number" id="izinCount">0</div>
-                <div class="stat-label">Izin</div>
-            </div>
-        </div>
-    </div>
 
-    <div class="card">
-        <div class="tabs">
-            <div class="tab active" data-tab="login">🔐 Login</div>
-            <div class="tab" data-tab="absen">📝 Absen</div>
-            <div class="tab" data-tab="history">📊 Riwayat</div>
-        </div>
+<div class="header">
+<div class="logo">📚</div>
+<h2>Absensi Siswa</h2>
 
-        <div id="login" class="tab-content active">
-            <h3 style="margin:0 0 20px 0; color:#495057;">Login Siswa</h3>
-            <input id="loginNIS" placeholder="NIS (contoh: 01)" maxlength="5" />
-            <input id="loginPass" type="password" placeholder="Password" />
-            <button id="btnLogin">Masuk</button>
-            <div style="text-align:center; margin-top:15px;">
-                <small style="color:#6c757d;">Atau scan QR Code</small>
-                <div id="qrReader" style="margin-top:10px;"></div>
-            </div>
-        </div>
-
-        <div id="absen" class="tab-content">
-            <div class="profile-card" id="profileCard" style="display:none;">
-                <div class="profile-avatar" id="avatar">A</div>
-                <div class="profile-info">
-                    <h3 id="siswaNama">-</h3>
-                    <p><strong>NIS:</strong> <span id="siswaNIS">-</span></p>
-                </div>
-            </div>
-            <input id="manualKelas" placeholder="Kelas/No.Absen" />
-            <select id="manualStatus">
-                <option value="Hadir">✅ Hadir</option>
-                <option value="Izin">📝 Izin</option>
-                <option value="Sakit">🤒 Sakit</option>
-                <option value="Alpa">❌ Alpa</option>
-            </select>
-            <input id="manualKet" placeholder="Keterangan (opsional)" />
-            <button id="kirimAbsen">Kirim Absensi</button>
-            <button id="btnLogout" class="btn-secondary">Logout</button>
-        </div>
-
-        <div id="history" class="tab-content">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
-                <h3 style="margin:0;">Riwayat Absensi</h3>
-                <div>
-                    <button id="printData" class="btn-secondary" style="padding:8px 12px; font-size:14px; margin-right:5px;">🖨️ Cetak</button>
-                    <button id="clearData" class="server-only">🗑️ Hapus (Server)</button>
-                </div>
-            </div>
-            
-            <div class="date-filter">
-                <input type="month" id="dateFilter" min="2024-04" max="">
-                <button id="filterBtn">Filter</button>
-                <button id="clearFilter" class="btn-secondary">Reset</button>
-            </div>
-            
-            <div class="table-container">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Tanggal</th>
-                            <th>NIS</th>
-                            <th>Nama</th>
-                            <th>Kelas</th>
-                            <th>Status</th>
-                            <th>Keterangan</th>
-                        </tr>
-                    </thead>
-                    <tbody id="absenTableBody">
-                        <tr><td colspan="6" style="text-align:center;color:#999;padding:30px;">Belum ada data</td></tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
+<div class="stats">
+<div class="stat-card">
+<div class="stat-number" id="totalAbsen">0</div>
+<div>Total</div>
 </div>
+
+<div class="stat-card">
+<div class="stat-number" id="hadirCount">0</div>
+<div>Hadir</div>
+</div>
+
+<div class="stat-card">
+<div class="stat-number" id="izinCount">0</div>
+<div>Izin</div>
+</div>
+</div>
+
+</div>
+
+<div class="card">
+
+<div class="tabs">
+<div class="tab active" data-tab="login">Login</div>
+<div class="tab" data-tab="absen">Absen</div>
+<div class="tab" data-tab="history">Riwayat</div>
+</div>
+
+
+<div id="login" class="tab-content active">
+
+<input id="loginNIS" placeholder="NIS">
+
+<input type="password" id="loginPass" placeholder="Password">
+
+<button id="btnLogin">Login</button>
+
+<center style="margin:10px 0">atau scan QR</center>
+
+<div id="reader"></div>
+
+</div>
+
+
+<div id="absen" class="tab-content">
+
+<div class="profile-card" id="profileCard" style="display:none">
+
+<div class="profile-avatar" id="avatar">A</div>
+
+<div>
+<div id="siswaNama"></div>
+<div>NIS : <span id="siswaNIS"></span></div>
+</div>
+
+</div>
+
+<input id="manualKelas" placeholder="Kelas / No Absen">
+
+<select id="manualStatus">
+<option value="Hadir">Hadir</option>
+<option value="Izin">Izin</option>
+<option value="Sakit">Sakit</option>
+<option value="Alpa">Alpa</option>
+</select>
+
+<input id="manualKet" placeholder="Keterangan">
+
+<button id="kirimAbsen">Kirim Absensi</button>
+
+<button class="btn-secondary" id="btnLogout">Logout</button>
+
+</div>
+
+
+<div id="history" class="tab-content">
+
+<button id="printData" class="btn-secondary">Print</button>
+
+<button id="clearData" class="btn-secondary">Hapus Data</button>
+
+<div class="table-container">
+
+<table>
+
+<thead>
+<tr>
+<th>Tanggal</th>
+<th>NIS</th>
+<th>Nama</th>
+<th>Kelas</th>
+<th>Status</th>
+<th>Ket</th>
+</tr>
+</thead>
+
+<tbody id="absenTableBody">
+<tr><td colspan="6" align="center">Belum ada data</td></tr>
+</tbody>
+
+</table>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
 
 <div id="successMsg" class="success"></div>
 <div id="notif" class="notif"></div>
 
+
 <script>
-const dataSiswa = {
-    "01": { nama: "Afgan Aditya", pass: "123" },
-    "02": { nama: "Andin Amelian", pass: "123" },
-    "03": { nama: "Anindya Novika", pass: "123" },
-    "04": { nama: "Aryasatya Mustofa", pass: "123" },
-    "05": { nama: "Asyla Nayla", pass: "123" },
-    "010": { nama: "Dhiva Gina", pass: "123" },
-    "011": { nama: "Dienda Rafita", pass: "123" },
-    "033": { nama: "Wira Surya", pass: "123" }
+
+const dataSiswa={
+"01":{nama:"Afgan Aditya",pass:"123"},
+"02":{nama:"Andin Amelian",pass:"123"},
+"03":{nama:"Anindya Novika",pass:"123"},
+"04":{nama:"Aryasatya Mustofa",pass:"123"},
+"05":{nama:"Asyla Nayla",pass:"123"},
+"010":{nama:"Dhiva Gina",pass:"123"},
+"011":{nama:"Dienda Rafita",pass:"123"},
+"033":{nama:"Wira Surya",pass:"123"}
 };
 
-let currentUser = null;
-let qrReader = null;
-let currentFilter = '';
+let currentUser=null;
 
-const MIN_DATE = '2024-04-01'; // Mulai April 2024
-
-function showSuccess(msg) {
-    const el = document.getElementById("successMsg");
-    el.textContent = msg;
-    el.style.display = "block";
-    setTimeout(() => el.style.display = "none", 2500);
+function showNotif(msg){
+const el=document.getElementById("notif");
+el.textContent=msg;
+el.classList.add("show");
+setTimeout(()=>el.classList.remove("show"),2500);
 }
 
-function showNotif(msg) {
-    const el = document.getElementById("notif");
-    el.textContent = msg;
-    el.classList.add("show");
-    setTimeout(() => el.classList.remove("show"), 2500);
+function showSuccess(msg){
+const el=document.getElementById("successMsg");
+el.textContent=msg;
+el.style.display="block";
+setTimeout(()=>el.style.display="none",2500);
 }
 
-function getMonthYear(dateStr) {
-    const [day, month, year] = dateStr.split('/');
-    return `${year}-${month.padStart(2, '0')}`;
+function login(nis,pass){
+
+const siswa=dataSiswa[nis];
+
+if(!siswa)return showNotif("NIS tidak ditemukan");
+
+if(pass && siswa.pass!==pass)return showNotif("Password salah");
+
+currentUser={nis,...siswa};
+
+document.getElementById("siswaNama").textContent=siswa.nama;
+document.getElementById("siswaNIS").textContent=nis;
+document.getElementById("avatar").textContent=siswa.nama[0];
+document.getElementById("profileCard").style.display="flex";
+
+document.querySelector('[data-tab="absen"]').click();
+
+showNotif("Login berhasil");
 }
 
-function isValidDate(dateStr) {
-    const [day, month, year] = dateStr.split('/');
-    const date = new Date(year, month - 1, day);
-    return date.getDate() == day && date.getMonth() == month - 1 && date.getFullYear() == year;
+function logout(){
+currentUser=null;
+document.getElementById("profileCard").style.display="none";
+document.querySelector('[data-tab="login"]').click();
 }
 
-function updateStats() {
-    const absensi = JSON.parse(localStorage.getItem('absensi') || '[]');
-    const validAbsensi = absensi.filter(item => isValidDate(item.tanggal));
-    
-    const stats = validAbsensi.reduce((acc, item) => {
-        acc.total++;
-        const status = item.status.toLowerCase();
-        acc[status] = (acc[status] || 0) + 1;
-        return acc;
-    }, { total: 0, hadir: 0, izin: 0 });
-    
-    document.getElementById("totalAbsen").textContent = stats.total;
-    document.getElementById("hadirCount").textContent = stats.hadir;
-    document.getElementById("izinCount").textContent = stats.izin;
+document.getElementById("btnLogin").onclick=()=>{
+login(
+document.getElementById("loginNIS").value,
+document.getElementById("loginPass").value
+)
 }
 
-function renderTable(filter = '') {
-    const absensi = JSON.parse(localStorage.getItem('absensi') || '[]');
-    const validAbsensi = absensi.filter(item => {
-        if (!isValidDate(item.tanggal)) return false;
-        if (filter && !item.tanggal.startsWith(filter)) return false;
-        return true;
-    }).sort((a, b) => new Date(b.tanggal.split('/').reverse().join('-')) - new Date(a.tanggal.split('/').reverse().join('-')));
-    
-    const tbody = document.getElementById("absenTableBody");
-    
-    if (validAbsensi.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#999;padding:30px;">Belum ada data</td></tr>';
-        return;
-    }
-    
-    tbody.innerHTML = validAbsensi.map(item => `
-        <tr>
-            <td><strong>${item.tanggal}</strong></td>
-            <td>${item.nis}</td>
-            <td>${item.nama}</td>
-            <td>${item.kelas}</td>
-            <td><span class="status-badge status-${item.status.toLowerCase()}">${item.status}</span></td>
-            <td>${item.keterangan}</td>
-        </tr>
-    `).join('');
+document.getElementById("btnLogout").onclick=logout;
+
+function simpanAbsensi(data){
+
+const absensi=JSON.parse(localStorage.getItem("absensi")||"[]");
+
+const today=new Date().toLocaleDateString("id-ID");
+
+if(absensi.some(a=>a.nis==data.nis&&a.tanggal==today))
+return showNotif("Sudah absen hari ini");
+
+absensi.push(data);
+
+localStorage.setItem("absensi",JSON.stringify(absensi));
+
+renderTable();
+
+showSuccess("Absensi berhasil");
+
 }
 
-function simpanAbsensi(data) {
-    const absensi = JSON.parse(localStorage.getItem('absensi') || '[]');
-    
-    // Cek duplikat hari ini
-    const today = new Date().toLocaleDateString('id-ID');
-    const sudahAbsen = absensi.some(item => 
-        item.nis === data.nis && item.tanggal === today
-    );
-    
-    if (sudahAbsen) {
-        showNotif("❌ Sudah absen hari ini!");
-        return;
-    }
-    
-    absensi.push({
-        ...data,
-        timestamp: new Date().toISOString()
-    });
-    localStorage.setItem('absensi', JSON.stringify(absensi));
-    updateStats();
-    renderTable(currentFilter);
-    showSuccess("✅ Absensi berhasil!");
+document.getElementById("kirimAbsen").onclick=()=>{
+
+if(!currentUser)return showNotif("Login dulu");
+
+const kelas=document.getElementById("manualKelas").value;
+
+if(!kelas)return showNotif("Isi kelas");
+
+simpanAbsensi({
+tanggal:new Date().toLocaleDateString("id-ID"),
+nis:currentUser.nis,
+nama:currentUser.nama,
+kelas:kelas,
+status:document.getElementById("manualStatus").value,
+keterangan:document.getElementById("manualKet").value
+})
+
 }
 
-function login(nis, pass) {
-    const siswa = dataSiswa[nis];
-    if (!siswa) return showNotif("❌ NIS tidak ditemukan!");
-    if (siswa.pass !== pass) return showNotif("❌ Password salah!");
-    
-    currentUser = { nis, ...siswa };
-    document.getElementById("siswaNIS").textContent = nis;
-    document.getElementById("siswaNama").textContent = siswa.nama;
-    document.getElementById("avatar").textContent = siswa.nama[0];
-    document.getElementById("profileCard").style.display = "flex";
-    
-    document.querySelector('[data-tab="absen"]').click();
-    showNotif(`✅ Welcome ${siswa.nama}!`);
+function renderTable(){
+
+const data=JSON.parse(localStorage.getItem("absensi")||"[]");
+
+const tbody=document.getElementById("absenTableBody");
+
+if(data.length==0){
+tbody.innerHTML='<tr><td colspan="6" align="center">Belum ada data</td></tr>';
+return;
 }
 
-function logout() {
-    currentUser
+tbody.innerHTML=data.reverse().map(d=>`
+<tr>
+<td>${d.tanggal}</td>
+<td>${d.nis}</td>
+<td>${d.nama}</td>
+<td>${d.kelas}</td>
+<td><span class="status-badge status-${d.status.toLowerCase()}">${d.status}</span></td>
+<td>${d.keterangan}</td>
+</tr>
+`).join("");
+
+}
+
+document.getElementById("printData").onclick=()=>window.print();
+
+document.getElementById("clearData").onclick=()=>{
+if(confirm("Hapus data?")){
+localStorage.removeItem("absensi");
+renderTable();
+}
+}
+
+document.querySelectorAll(".tab").forEach(tab=>{
+tab.onclick=()=>{
+document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"))
+document.querySelectorAll(".tab-content").forEach(c=>c.classList.remove("active"))
+tab.classList.add("active")
+document.getElementById(tab.dataset.tab).classList.add("active")
+}
+})
+
+renderTable();
+
+/* QR SCANNER */
+
+const qr=new Html5Qrcode("reader");
+
+Html5Qrcode.getCameras().then(cameras=>{
+if(cameras.length){
+
+qr.start(
+cameras[0].id,
+{fps:10,qrbox:200},
+decoded=>{
+login(decoded)
+},
+error=>{}
+)
+
+}
+});
+
+</script>
+
+</body>
+</html>
