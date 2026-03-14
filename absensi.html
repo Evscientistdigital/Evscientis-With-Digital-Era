@@ -3,13 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Dashboard Absensi</title>
+<title>Absensi Siswa</title>
 <script src="https://unpkg.com/html5-qrcode"></script>
 <style>
 /* Reset & global */
 *{box-sizing:border-box;margin:0;padding:0;font-family:'Segoe UI',sans-serif;}
 body{background:#f4f6fc;padding:20px;display:flex;justify-content:center;}
-.container{max-width:450px;margin:auto;padding:20px;} /* lebih simple */
+.container{max-width:450px;margin:auto;padding:20px;} /* layout simple */
 
 /* Header & Logo */
 .header{ background:white; border-radius:20px; padding:20px; text-align:center; box-shadow:0 8px 20px rgba(0,0,0,0.08); margin-bottom:20px; }
@@ -58,11 +58,26 @@ th{background:#f4f6fc;position:sticky;top:0;text-align:left;}
 .success{ position:fixed;top:20px;left:50%; transform:translateX(-50%); background:#28a745;color:white;padding:12px 20px;border-radius:10px;display:none; }
 .notif{ position:fixed;bottom:20px;left:50%; transform:translateX(-50%); background:#dc3545;color:white;padding:12px 20px;border-radius:10px; opacity:0;transition:.3s; }
 .notif.show{opacity:1;}
+
+/* Login page style */
+#loginPage{display:block;}
+#dashboardPage{display:none;}
 </style>
 </head>
 <body>
 <div class="container">
-  <!-- Header -->
+
+<!-- ===== Login Page ===== -->
+<div id="loginPage">
+  <div class="logo"><img src="AOS.jpg" alt="Logo Sekolah"></div>
+  <h2 style="text-align:center;">Login Absensi</h2>
+  <input id="loginNIS" placeholder="NIS">
+  <input type="password" id="loginPass" placeholder="Password">
+  <button id="btnLogin">Login</button>
+</div>
+
+<!-- ===== Dashboard Page ===== -->
+<div id="dashboardPage">
   <div class="header">
     <div class="logo"><img src="AOS.jpg" alt="Logo Sekolah"></div>
     <h2>Absensi Siswa</h2>
@@ -73,13 +88,11 @@ th{background:#f4f6fc;position:sticky;top:0;text-align:left;}
     </div>
   </div>
 
-  <!-- Tabs -->
   <div class="tabs">
     <div class="tab active" data-tab="absen">Absen</div>
     <div class="tab" data-tab="history">Riwayat</div>
   </div>
 
-  <!-- Absen Tab -->
   <div id="absen" class="tab-content active">
     <div class="profile-card" id="profileCard" style="display:none">
       <div class="profile-avatar" id="avatar">A</div>
@@ -88,14 +101,6 @@ th{background:#f4f6fc;position:sticky;top:0;text-align:left;}
         <div>NIS : <span id="siswaNIS"></span></div>
       </div>
     </div>
-
-    <input id="loginNIS" placeholder="NIS">
-    <input type="password" id="loginPass" placeholder="Password">
-    <button id="btnLogin">Login</button>
-
-    <center style="margin:10px 0">atau scan QR</center>
-    <div id="reader"></div>
-
     <input id="manualKelas" placeholder="Kelas / No Absen">
     <select id="manualStatus">
       <option value="Hadir">Hadir</option>
@@ -106,9 +111,10 @@ th{background:#f4f6fc;position:sticky;top:0;text-align:left;}
     <input id="manualKet" placeholder="Keterangan">
     <button id="kirimAbsen">Kirim Absensi</button>
     <button class="btn-secondary" id="btnLogout">Logout</button>
+    <center style="margin:10px 0">atau scan QR</center>
+    <div id="reader"></div>
   </div>
 
-  <!-- Riwayat Tab -->
   <div id="history" class="tab-content">
     <button id="printData" class="btn-secondary">Print</button>
     <button id="btnClearAll" class="btn-secondary">Hapus Semua Data</button>
@@ -130,9 +136,10 @@ th{background:#f4f6fc;position:sticky;top:0;text-align:left;}
       </table>
     </div>
   </div>
+</div>
 
-  <div id="successMsg" class="success"></div>
-  <div id="notif" class="notif"></div>
+<div id="successMsg" class="success"></div>
+<div id="notif" class="notif"></div>
 </div>
 
 <script>
@@ -147,28 +154,47 @@ const dataSiswa={
   "033":{nama:"Wira Surya",pass:"123"}
 };
 let currentUser=null;
+let isAdmin=false;
 const ADMIN_PASSWORD="123456";
 
 /* Notif & Success */
 function showNotif(msg){const el=document.getElementById("notif");el.textContent=msg;el.classList.add("show");setTimeout(()=>el.classList.remove("show"),2500);}
 function showSuccess(msg){const el=document.getElementById("successMsg");el.textContent=msg;el.style.display="block";setTimeout(()=>el.style.display="none",2500);}
 
-/* Login siswa (juga cek admin) */
-function login(nis,pass){
-  if(pass===ADMIN_PASSWORD){ showNotif("Login sebagai Admin"); alert("Admin login aktif!"); return; }
+/* Login */
+document.getElementById("btnLogin").onclick=()=>{
+  const nis=document.getElementById("loginNIS").value;
+  const pass=document.getElementById("loginPass").value;
+
+  if(pass===ADMIN_PASSWORD){
+    isAdmin=true;
+    currentUser={nis:"ADMIN",nama:"ADMIN"};
+    goDashboard();
+    return;
+  }
   const siswa=dataSiswa[nis];
   if(!siswa){showNotif("NIS tidak ditemukan");return;}
   if(pass && siswa.pass!==pass){showNotif("Password salah");return;}
-  currentUser={nis,...siswa};
-  document.getElementById("siswaNama").textContent=siswa.nama;
-  document.getElementById("siswaNIS").textContent=nis;
-  document.getElementById("avatar").textContent=siswa.nama[0];
+  currentUser={nis, nama:siswa.nama};
+  goDashboard();
+};
+
+function goDashboard(){
+  document.getElementById("loginPage").style.display="none";
+  document.getElementById("dashboardPage").style.display="block";
+  document.getElementById("siswaNama").textContent=currentUser.nama;
+  document.getElementById("siswaNIS").textContent=currentUser.nis;
+  document.getElementById("avatar").textContent=currentUser.nama[0];
   document.getElementById("profileCard").style.display="flex";
-  showNotif("Login berhasil");
 }
 
-/* Logout siswa */
-function logout(){currentUser=null;document.getElementById("profileCard").style.display="none";}
+/* Logout */
+document.getElementById("btnLogout").onclick=()=>{
+  currentUser=null;
+  isAdmin=false;
+  document.getElementById("dashboardPage").style.display="none";
+  document.getElementById("loginPage").style.display="block";
+};
 
 /* Simpan absensi */
 function simpanAbsensi(data){
@@ -180,7 +206,6 @@ function simpanAbsensi(data){
   renderTable(); updateStats(); showSuccess("Absensi berhasil");
 }
 
-/* Kirim absen */
 document.getElementById("kirimAbsen").onclick=()=>{
   if(!currentUser){showNotif("Login dulu");return;}
   const kelas=document.getElementById("manualKelas").value;
@@ -222,10 +247,11 @@ function updateStats(){
 /* Print & Clear */
 document.getElementById("printData").onclick=()=>window.print();
 document.getElementById("btnClearAll").onclick=()=>{
-  if(confirm("Yakin hapus semua data?")){ localStorage.removeItem("absensi"); renderTable();updateStats();showNotif("Semua data dihapus"); }
+  if(!isAdmin){showNotif("Hanya admin yang bisa menghapus data"); return;}
+  if(confirm("Yakin hapus semua data?")){ localStorage.removeItem("absensi"); renderTable(); updateStats(); showNotif("Semua data dihapus"); }
 };
 
-/* Tab switch + login gate */
+/* Tab switch */
 document.querySelectorAll(".tab").forEach(tab=>{
   tab.onclick=()=>{
     if(tab.dataset.tab==="absen" && !currentUser){ showNotif("Login dulu untuk mengakses Absen"); return; }
@@ -236,19 +262,16 @@ document.querySelectorAll(".tab").forEach(tab=>{
   }
 });
 
-/* Login button */
-document.getElementById("btnLogin").onclick=()=>login(
-  document.getElementById("loginNIS").value,
-  document.getElementById("loginPass").value
-);
-
-/* Logout */
-document.getElementById("btnLogout").onclick=logout;
-
 /* QR scanner */
 const qr=new Html5Qrcode("reader");
 Html5Qrcode.getCameras().then(cameras=>{
-  if(cameras.length){qr.start(cameras[0].id,{fps:10,qrbox:200},decoded=>{login(decoded)},error=>{});}
+  if(cameras.length){qr.start(cameras[0].id,{fps:10,qrbox:200},decoded=>{
+    // Login via QR
+    if(dataSiswa[decoded]){
+      currentUser={nis:decoded,nama:dataSiswa[decoded].nama};
+      goDashboard();
+    }
+  },error=>{});}
 });
 
 /* Initial render */
