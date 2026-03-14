@@ -3,165 +3,298 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Absensi Siswa - Login</title>
+<title>Absensi Siswa - Dashboard</title>
 <script src="https://unpkg.com/html5-qrcode"></script>
 <style>
 * { box-sizing: border-box; }
 body { 
     font-family: 'Poppins', sans-serif; 
     background: linear-gradient(135deg,#f5f7ff,#e0ebff); 
-    display:flex; 
-    justify-content:center; 
-    align-items:center; 
-    min-height: 100vh;
     margin: 0;
-    padding:20px;
+    padding: 20px;
+    min-height: 100vh;
 }
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+.header {
+    text-align: center;
+    background: white;
+    padding: 30px;
+    border-radius: 20px;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.1);
+    margin-bottom: 30px;
+}
+.logo { font-size: 48px; margin-bottom: 10px; }
+h1 { color: #2c3e50; margin: 0 0 10px 0; font-size: 28px; }
+.stats {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    margin-top: 20px;
+    flex-wrap: wrap;
+}
+.stat-card {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 20px;
+    border-radius: 15px;
+    min-width: 120px;
+    text-align: center;
+}
+.stat-number { font-size: 32px; font-weight: bold; margin-bottom: 5px; }
+
 .card { 
-    background:#fff; 
-    padding:30px 40px; 
-    border-radius:20px; 
-    box-shadow:0 20px 50px rgba(0,0,0,0.1); 
-    width:100%; 
-    max-width:450px; 
-    text-align:center;
+    background: white; 
+    padding: 30px; 
+    border-radius: 20px; 
+    box-shadow: 0 15px 40px rgba(0,0,0,0.1); 
+    margin-bottom: 30px;
 }
-.logo { font-size:48px; margin-bottom:10px; }
-h1 { color:#2c3e50; margin:0 0 30px 0; font-size:24px; }
-.login-form, .absen-form { display:none; }
-.active { display:block; }
+.tabs {
+    display: flex;
+    border-bottom: 2px solid #eee;
+    margin-bottom: 25px;
+}
+.tab {
+    padding: 15px 30px;
+    cursor: pointer;
+    font-weight: 600;
+    border-bottom: 3px solid transparent;
+    transition: 0.3s;
+}
+.tab.active {
+    color: #346dff;
+    border-bottom-color: #346dff;
+}
+.tab-content { display: none; }
+.tab-content.active { display: block; }
+
 input, select, button { 
-    width:100%; 
-    margin:12px 0; 
-    padding:14px; 
-    border-radius:12px; 
-    border:1px solid #ddd; 
-    font-size:16px;
-    transition:0.3s;
+    width: 100%; 
+    margin: 12px 0; 
+    padding: 14px; 
+    border-radius: 12px; 
+    border: 1px solid #ddd; 
+    font-size: 16px;
+    transition: 0.3s;
 }
 input:focus, select:focus { 
-    outline:none; 
-    border-color:#346dff; 
-    box-shadow:0 0 0 3px rgba(52,109,255,0.1);
+    outline: none; 
+    border-color: #346dff; 
+    box-shadow: 0 0 0 3px rgba(52,109,255,0.1);
 }
 button { 
-    background:#346dff; 
-    color:#fff; 
-    border:none; 
-    font-weight:600; 
-    cursor:pointer;
-    font-size:16px;
+    background: #346dff; 
+    color: #fff; 
+    border: none; 
+    font-weight: 600; 
+    cursor: pointer;
+    font-size: 16px;
 }
-button:hover:not(:disabled) { background:#1a52d1; }
-button:disabled { 
-    background:#ccc; 
-    cursor:not-allowed; 
-}
-.success { 
-    position:fixed; 
-    top:20px; 
-    left:50%; 
-    transform:translateX(-50%); 
-    background:#4caf50; 
-    color:#fff; 
-    padding:20px 40px; 
-    border-radius:15px; 
-    box-shadow:0 10px 30px rgba(0,0,0,0.2); 
-    z-index:1000; 
-    font-weight:600; 
-    font-size:18px;
-    display:none;
-}
-.notif { 
-    position:fixed; 
-    bottom:30px; 
-    left:50%; 
-    transform:translateX(-50%) scale(0.8); 
-    background:rgba(255,80,80,0.95); 
-    color:#fff; 
-    padding:15px 25px; 
-    border-radius:15px; 
-    font-size:16px; 
-    font-weight:600; 
-    box-shadow:0 10px 30px rgba(0,0,0,0.2); 
-    opacity:0; 
-    transition:0.4s; 
-    max-width:90vw;
-    text-align:center;
-}
-.notif.show { 
-    opacity:1; 
-    transform:translateX(-50%) scale(1); 
-}
-#reader {
-    width:100%;
-    height:280px;
-    border-radius:12px;
-    overflow:hidden;
-    margin:15px 0;
-    background:#f8f9ff;
-}
+button:hover:not(:disabled) { background: #1a52d1; }
+button:disabled { background: #ccc; cursor: not-allowed; }
+.btn-secondary { background: #6c757d; }
+.btn-secondary:hover { background: #545b62; }
+.btn-success { background: #28a745; }
+.btn-success:hover { background: #218838; }
+
 .profile-card {
-    background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);
-    color:white;
-    padding:20px;
-    border-radius:15px;
-    margin:20px 0;
+    background: linear-gradient(135deg,#667eea 0%,#764ba2 100%);
+    color: white;
+    padding: 25px;
+    border-radius: 15px;
+    margin-bottom: 25px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
 }
-.profile-info h3 { margin:0 0 10px 0; font-size:22px; }
-.profile-info p { margin:5px 0; opacity:0.9; }
+.profile-avatar {
+    width: 70px;
+    height: 70px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+}
+.profile-info h3 { margin: 0 0 5px 0; font-size: 22px; }
+.profile-info p { margin: 0; opacity: 0.9; }
+
+#reader {
+    width: 100%;
+    height: 250px;
+    border-radius: 12px;
+    overflow: hidden;
+    margin: 15px 0;
+    background: #f8f9ff;
+    border: 2px dashed #ddd;
+}
+
+.table-container {
+    overflow-x: auto;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+}
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    min-width: 800px;
+}
+th, td {
+    padding: 15px;
+    text-align: left;
+    border-bottom: 1px solid #eee;
+}
+th {
+    background: #f8f9ff;
+    font-weight: 600;
+    color: #2c3e50;
+    position: sticky;
+    top: 0;
+}
 .status-badge {
-    display:inline-block;
-    padding:8px 20px;
-    border-radius:25px;
-    font-weight:600;
-    font-size:14px;
-    margin:5px;
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    text-align: center;
+    min-width: 60px;
 }
-.status-hadir { background:#4caf50; color:white; }
-.status-izin { background:#ff9800; color:white; }
-.status-sakit { background:#f44336; color:white; }
+.status-hadir { background: #d4edda; color: #155724; }
+.status-izin { background: #fff3cd; color: #856404; }
+.status-sakit { background: #f8d7da; color: #721c24; }
+.status-alpa { background: #f5c6cb; color: #721c24; }
+
+.success, .notif {
+    position: fixed;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 20px 40px;
+    border-radius: 15px;
+    font-weight: 600;
+    font-size: 16px;
+    z-index: 1000;
+    max-width: 90vw;
+    text-align: center;
+}
+.success {
+    top: 20px;
+    background: #4caf50;
+    color: white;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    display: none;
+}
+.notif {
+    bottom: 30px;
+    background: rgba(255,80,80,0.95);
+    color: white;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    opacity: 0;
+    transition: 0.4s;
+}
+.notif.show { opacity: 1; transform: translateX(-50%) scale(1); }
+
+@media (max-width: 768px) {
+    .stats { gap: 15px; }
+    .stat-card { min-width: 100px; }
+    .profile-card { flex-direction: column; text-align: center; }
+    .tabs { flex-direction: column; }
+    .tab { border-bottom: none; border-right: 3px solid transparent; }
+    .tab.active { border-right-color: #346dff; }
+}
 </style>
 </head>
 <body>
 
-<div class="card">
-    <div class="logo">📚</div>
-    <h1>Absensi Siswa</h1>
-    
-    <!-- LOGIN FORM -->
-    <div id="loginForm" class="login-form active">
-        <h3>🔐 Login Siswa</h3>
-        <input id="loginNIS" placeholder="NIS (01-033)" maxlength="3" />
-        <input id="loginPass" type="password" placeholder="Password" />
-        <button id="btnLogin">Masuk</button>
-        <p style="font-size:14px;color:#666;margin-top:20px;">
-            Atau scan QR Code login ↓
-        </p>
-        <div id="qrReader"></div>
-    </div>
-
-    <!-- ABSEN FORM -->
-    <div id="absenForm" class="absen-form">
-        <div class="profile-card">
-            <div class="profile-info">
-                <h3 id="siswaNama">-</h3>
-                <p><strong>NIS:</strong> <span id="siswaNIS">-</span></p>
-                <div id="statusBadge">-</div>
+<div class="container">
+    <div class="header">
+        <div class="logo">📚</div>
+        <h1>Dashboard Absensi Siswa</h1>
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-number" id="totalAbsen">0</div>
+                <div>Total Absensi</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="hadirCount">0</div>
+                <div>Hadir</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="izinCount">0</div>
+                <div>Izin</div>
             </div>
         </div>
-        
-        <h3>📝 Isi Absensi</h3>
-        <input id="manualKelas" placeholder="No Absen / Kelas" />
-        <select id="manualStatus">
-            <option value="Hadir">✅ Hadir</option>
-            <option value="Izin">📝 Izin</option>
-            <option value="Sakit">🤒 Sakit</option>
-            <option value="Alpa">❌ Alpa</option>
-        </select>
-        <input id="manualKet" placeholder="Keterangan (opsional)" />
-        <button id="kirimAbsen">Kirim Absensi</button>
-        <button id="btnLogout" style="background:#ff6b6b;margin-top:10px;">Logout</button>
+    </div>
+
+    <div class="card">
+        <div class="tabs">
+            <div class="tab active" data-tab="login">🔐 Login</div>
+            <div class="tab" data-tab="absen">📝 Absen</div>
+            <div class="tab" data-tab="history">📊 Riwayat</div>
+        </div>
+
+        <!-- LOGIN TAB -->
+        <div id="login" class="tab-content active">
+            <h3 style="margin-top:0;">Login Siswa</h3>
+            <input id="loginNIS" placeholder="NIS (01-033)" maxlength="3" />
+            <input id="loginPass" type="password" placeholder="Password" />
+            <button id="btnLogin">Masuk</button>
+            <div style="margin-top:20px;">
+                <small>Atau scan QR Code:</small>
+                <div id="qrReader"></div>
+            </div>
+        </div>
+
+        <!-- ABSEN TAB -->
+        <div id="absen" class="tab-content">
+            <div class="profile-card" id="profileCard" style="display:none;">
+                <div class="profile-avatar" id="avatar">A</div>
+                <div class="profile-info">
+                    <h3 id="siswaNama">-</h3>
+                    <p><strong>NIS:</strong> <span id="siswaNIS">-</span></p>
+                </div>
+            </div>
+            <input id="manualKelas" placeholder="No Absen / Kelas" />
+            <select id="manualStatus">
+                <option value="Hadir">✅ Hadir</option>
+                <option value="Izin">📝 Izin</option>
+                <option value="Sakit">🤒 Sakit</option>
+                <option value="Alpa">❌ Alpa</option>
+            </select>
+            <input id="manualKet" placeholder="Keterangan (opsional)" />
+            <button id="kirimAbsen">Kirim Absensi</button>
+            <button id="btnLogout" class="btn-secondary">Logout</button>
+        </div>
+
+        <!-- HISTORY TAB -->
+        <div id="history" class="tab-content">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+                <h3>Riwayat Absensi</h3>
+                <button id="clearData" class="btn-secondary">🗑️ Hapus Semua</button>
+            </div>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Tanggal</th>
+                            <th>NIS</th>
+                            <th>Nama</th>
+                            <th>Kelas</th>
+                            <th>Status</th>
+                            <th>Keterangan</th>
+                            <th>Waktu</th>
+                        </tr>
+                    </thead>
+                    <tbody id="absenTableBody">
+                        <tr><td colspan="7" style="text-align:center;color:#999;padding:40px;">Belum ada data absensi</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -169,7 +302,7 @@ button:disabled {
 <div id="notif" class="notif"></div>
 
 <script>
-/* DATA SISWA + PASSWORD */
+/* DATA SISWA */
 const dataSiswa = {
     "01": { nama: "Afgan Aditya Syahreza", pass: "123" },
     "02": { nama: "Andin Amelian", pass: "123" },
@@ -195,158 +328,119 @@ const dataSiswa = {
 };
 
 let currentUser = null;
-let html5QrCode = null;
 
 /* UTILITY FUNCTIONS */
-function showSuccess() {
-    const msg = document.getElementById("successMsg");
-    msg.style.display = "block";
-    setTimeout(() => msg.style.display = "none", 3000);
+function showSuccess(msg = "✅ Berhasil!") {
+    const el = document.getElementById("successMsg");
+    el.textContent = msg;
+    el.style.display = "block";
+    setTimeout(() => el.style.display = "none", 3000);
 }
 
 function showNotif(msg) {
-    const notif = document.getElementById("notif");
-    notif.textContent = msg;
-    notif.classList.add("show");
-    setTimeout(() => notif.classList.remove("show"), 3000);
+    const el = document.getElementById("notif");
+    el.textContent = msg;
+    el.classList.add("show");
+    setTimeout(() => el.classList.remove("show"), 3000);
 }
 
-function showForm(formId) {
-    document.querySelectorAll('.login-form, .absen-form').forEach(f => f.classList.remove('active'));
-    document.getElementById(formId).classList.add('active');
+function updateStats() {
+    const absensi = JSON.parse(localStorage.getItem('absensi') || '[]');
+    const stats = absensi.reduce((acc, item) => {
+        acc.total++;
+        acc[item.status.toLowerCase()] = (acc[item.status.toLowerCase()] || 0) + 1;
+        return acc;
+    }, { total: 0, hadir: 0, izin: 0, sakit: 0, alpa: 0 });
+    
+    document.getElementById("totalAbsen").textContent = stats.total;
+    document.getElementById("hadirCount").textContent = stats.hadir;
+    document.getElementById("izinCount").textContent = stats.izin;
+}
+
+function renderTable() {
+    const absensi = JSON.parse(localStorage.getItem('absensi') || '[]');
+    const tbody = document.getElementById("absenTableBody");
+    
+    if (absensi.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:#999;padding:40px;">Belum ada data absensi</td></tr>';
+        return;
+    }
+    
+    tbody.innerHTML = absensi.map(item => `
+        <tr>
+            <td>${item.tanggal}</td>
+            <td><strong>${item.nis}</strong></td>
+            <td>${item.nama}</td>
+            <td>${item.kelas}</td>
+            <td><span class="status-badge status-${item.status.toLowerCase()}">${item.status}</span></td>
+            <td>${item.keterangan}</td>
+            <td>${new Date(item.timestamp).toLocaleTimeString('id-ID')}</td>
+        </tr>
+    `).join('');
 }
 
 function simpanAbsensi(data) {
-    // Simulasi save ke localStorage (bisa diganti ke server)
     const absensi = JSON.parse(localStorage.getItem('absensi') || '[]');
     absensi.push({
         ...data,
-        timestamp: new Date().toISOString(),
-        id: Date.now()
+        timestamp: new Date().toISOString()
     });
     localStorage.setItem('absensi', JSON.stringify(absensi));
-    
-    // Tampilkan status
-    const badge = document.getElementById("statusBadge");
-    const statusClass = `status-${data.status.toLowerCase()}`;
-    badge.textContent = data.status;
-    badge.className = `status-badge ${statusClass}`;
+    updateStats();
+    renderTable();
 }
 
-/* LOGIN FUNCTION */
+/* LOGIN SYSTEM */
 function login(nis, pass) {
     const siswa = dataSiswa[nis];
-    if (!siswa) {
-        showNotif("❌ NIS tidak ditemukan!");
-        return false;
-    }
+    if (!siswa) return showNotif("❌ NIS tidak ditemukan!");
+    if (siswa.pass !== pass) return showNotif("❌ Password salah!");
     
-    if (siswa.pass !== pass) {
-        showNotif("❌ Password salah!");
-        return false;
-    }
-    
-    // Login sukses
     currentUser = { nis, ...siswa };
     document.getElementById("siswaNIS").textContent = nis;
     document.getElementById("siswaNama").textContent = siswa.nama;
-    document.getElementById("statusBadge").textContent = "-";
-    document.getElementById("statusBadge").className = "status-badge";
+    document.getElementById("avatar").textContent = siswa.nama[0].toUpperCase();
+    document.getElementById("profileCard").style.display = "flex";
     
-    showForm("absenForm");
     showNotif(`✅ Selamat datang, ${siswa.nama}!`);
-    return true;
 }
 
 /* EVENT HANDLERS */
 document.addEventListener('DOMContentLoaded', () => {
-    // Login button
+    // Initial load
+    updateStats();
+    renderTable();
+    
+    // Tab switching
+    document.querySelectorAll('.tab').forEach(tab => {
+        tab.onclick = () => {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            tab.classList.add('active');
+            document.getElementById(tab.dataset.tab).classList.add('active');
+        };
+    });
+    
+    // Login
     document.getElementById("btnLogin").onclick = () => {
         const nis = document.getElementById("loginNIS").value.trim();
         const pass = document.getElementById("loginPass").value.trim();
-        
-        if (!nis || !pass) {
-            showNotif("❌ Isi NIS dan Password!");
-            return;
-        }
-        
+        if (!nis || !pass) return showNotif("❌ Isi NIS dan Password!");
         login(nis, pass);
     };
     
-    // Enter key login
-    document.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') {
-            if (document.getElementById("loginForm").classList.contains('active')) {
-                document.getElementById("btnLogin").click();
-            } else {
-                document.getElementById("kirimAbsen").click();
-            }
-        }
-    });
-    
-    // Absen button
+    // Absen
     document.getElementById("kirimAbsen").onclick = () => {
-        if (!currentUser) return;
+        if (!currentUser) return showNotif("❌ Login dulu!");
         
         const kelas = document.getElementById("manualKelas").value.trim();
         const status = document.getElementById("manualStatus").value;
         const ket = document.getElementById("manualKet").value.trim();
         
-        if (!kelas) {
-            showNotif("❌ Isi No Absen/Kelas!");
-            return;
-        }
+        if (!kelas) return showNotif("❌ Isi No Absen/Kelas!");
         
-        // Simpan absensi
-        const absenData = {
+        const data = {
             nis: currentUser.nis,
             nama: currentUser.nama,
-            kelas,
-            status,
-            keterangan: ket || "-",
-            tanggal: new Date().toLocaleDateString('id-ID')
-        };
-        
-        simpanAbsensi(absenData);
-        showSuccess();
-        
-        // Disable form
-        document.querySelectorAll('#absenForm input, #absenForm select, #kirimAbsen').forEach(el => {
-            el.disabled = true;
-        });
-        document.getElementById("kirimAbsen").textContent = "✅ Selesai";
-    };
-    
-    // Logout
-    document.getElementById("btnLogout").onclick = () => {
-        currentUser = null;
-        document.querySelectorAll('#absenForm input, #absenForm select, #kirimAbsen').forEach(el => {
-            el.disabled = false;
-        });
-        document.getElementById("kirimAbsen").textContent = "Kirim Absensi";
-        showForm("loginForm");
-    };
-    
-    // QR Login Scanner
-    const qrReader = new Html5Qrcode("qrReader");
-    Html5Qrcode.getCameras().then(devices => {
-        if (devices.length) {
-            const cameraId = devices.find(d => d.facingMode === "environment")?.id || devices[0].id;
-            qrReader.start(
-                cameraId,
-                { fps: 10, qrbox: 200 },
-                (decodedText) => {
-                    const [nis, pass] = decodedText.split('|');
-                    if (nis && pass) {
-                        document.getElementById("loginNIS").value = nis;
-                        document.getElementById("loginPass").value = pass;
-                        setTimeout(() => document.getElementById("btnLogin").click(), 500);
-                    }
-                }
-            ).catch(console.error);
-        }
-    }).catch(console.error);
-});
-</script>
-</body>
-</html>
+            kelas, status, keterangan: ket || "-",
+            tanggal: new Date().toLocaleDateString('id-ID
