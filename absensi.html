@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Absensi Siswa - AOS</title>
+<title>Absensi Siswa</title>
 <script src="https://unpkg.com/html5-qrcode"></script>
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -34,6 +34,7 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
+    font-size: 40px;
 }
 .logo img {
     width: 70px;
@@ -142,7 +143,6 @@ button:disabled { background: #ccc; cursor: not-allowed; }
 }
 .profile-info h3 { margin: 0 0 2px 0; font-size: 18px; }
 .profile-info p { margin: 0; opacity: 0.9; font-size: 14px; }
-.server-profile { background: linear-gradient(135deg, #dc3545, #c82333) !important; }
 
 #reader {
     width: 100%;
@@ -192,7 +192,6 @@ th {
     gap: 10px;
     margin-bottom: 15px;
     align-items: center;
-    flex-wrap: wrap;
 }
 .date-filter input {
     max-width: 150px;
@@ -244,7 +243,6 @@ th {
     body * { visibility: hidden; }
     .table-container, .table-container * { visibility: visible; }
     .table-container { position: absolute; left: 0; top: 0; width: 100%; }
-    #dateFilter::before { content: "Data per: " attr(data-print-value); }
 }
 </style>
 </head>
@@ -256,7 +254,7 @@ th {
             <img src="AOS.logo.jpg" alt="AOS Logo" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
             <div style="display:none; font-size:40px;">📚</div>
         </div>
-        <h1>Absensi Siswa AOS</h1>
+        <h1>Absensi Siswa</h1>
         <div class="stats">
             <div class="stat-card">
                 <div class="stat-number" id="totalAbsen">0</div>
@@ -289,12 +287,6 @@ th {
                 <small style="color:#6c757d;">Atau scan QR Code</small>
                 <div id="qrReader" style="margin-top:10px;"></div>
             </div>
-            <div style="margin-top:20px; padding-top:20px; border-top:1px solid #eee;">
-                <h4 style="color:#dc3545; margin-bottom:10px;">🔧 Server Admin</h4>
-                <input id="serverNIS" placeholder="server1234" maxlength="10" />
-                <input id="serverPass" type="password" placeholder="server1234" />
-                <button id="btnServerLogin" style="background:#dc3545;">Server Login</button>
-            </div>
         </div>
 
         <div id="absen" class="tab-content">
@@ -302,8 +294,7 @@ th {
                 <div class="profile-avatar" id="avatar">A</div>
                 <div class="profile-info">
                     <h3 id="siswaNama">-</h3>
-                    <p><strong>ID:</strong> <span id="siswaNIS">-</span></p>
-                    <p id="userRole"></p>
+                    <p><strong>NIS:</strong> <span id="siswaNIS">-</span></p>
                 </div>
             </div>
             <input id="manualKelas" placeholder="Kelas/No.Absen" />
@@ -320,17 +311,17 @@ th {
 
         <div id="history" class="tab-content">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
-                <h3 style="margin:0;">Riwayat Absensi (April 2024+)</h3>
+                <h3 style="margin:0;">Riwayat Absensi</h3>
                 <div>
                     <button id="printData" class="btn-secondary" style="padding:8px 12px; font-size:14px; margin-right:5px;">🖨️ Cetak</button>
-                    <button id="clearData" class="server-only" style="display:none;">🗑️ Hapus Semua Data</button>
+                    <button id="clearData" class="server-only">🗑️ Hapus (Server)</button>
                 </div>
             </div>
             
             <div class="date-filter">
-                <input type="month" id="dateFilter" min="2024-04" />
-                <button id="filterBtn">Filter Bulan</button>
-                <button id="clearFilter" class="btn-secondary">Tampilkan Semua</button>
+                <input type="month" id="dateFilter" min="2024-04" max="">
+                <button id="filterBtn">Filter</button>
+                <button id="clearFilter" class="btn-secondary">Reset</button>
             </div>
             
             <div class="table-container">
@@ -346,7 +337,7 @@ th {
                         </tr>
                     </thead>
                     <tbody id="absenTableBody">
-                        <tr><td colspan="6" style="text-align:center;color:#999;padding:30px;">Belum ada data absensi</td></tr>
+                        <tr><td colspan="6" style="text-align:center;color:#999;padding:30px;">Belum ada data</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -369,15 +360,11 @@ const dataSiswa = {
     "033": { nama: "Wira Surya", pass: "123" }
 };
 
-const SERVER_CREDENTIALS = {
-    nis: "server1234",
-    pass: "server1234"
-};
-
 let currentUser = null;
 let qrReader = null;
 let currentFilter = '';
-let isServer = false;
+
+const MIN_DATE = '2024-04-01'; // Mulai April 2024
 
 function showSuccess(msg) {
     const el = document.getElementById("successMsg");
@@ -391,6 +378,17 @@ function showNotif(msg) {
     el.textContent = msg;
     el.classList.add("show");
     setTimeout(() => el.classList.remove("show"), 2500);
+}
+
+function getMonthYear(dateStr) {
+    const [day, month, year] = dateStr.split('/');
+    return `${year}-${month.padStart(2, '0')}`;
+}
+
+function isValidDate(dateStr) {
+    const [day, month, year] = dateStr.split('/');
+    const date = new Date(year, month - 1, day);
+    return date.getDate() == day && date.getMonth() == month - 1 && date.getFullYear() == year;
 }
 
 function updateStats() {
@@ -409,30 +407,18 @@ function updateStats() {
     document.getElementById("izinCount").textContent = stats.izin;
 }
 
-function isValidDate(dateStr) {
-    const [day, month, year] = dateStr.split('/');
-    const date = new Date(year, month - 1, day);
-    const minDate = new Date('2024-04-01');
-    return date >= minDate && 
-           date.getDate() == day && 
-           date.getMonth() == month - 1 && 
-           date.getFullYear() == year;
-}
-
 function renderTable(filter = '') {
     const absensi = JSON.parse(localStorage.getItem('absensi') || '[]');
     const validAbsensi = absensi.filter(item => {
         if (!isValidDate(item.tanggal)) return false;
-        if (filter && getMonthYear(item.tanggal) !== filter) return false;
+        if (filter && !item.tanggal.startsWith(filter)) return false;
         return true;
     }).sort((a, b) => new Date(b.tanggal.split('/').reverse().join('-')) - new Date(a.tanggal.split('/').reverse().join('-')));
     
     const tbody = document.getElementById("absenTableBody");
-    const clearBtn = document.getElementById("clearData");
     
     if (validAbsensi.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#999;padding:30px;">Belum ada data absensi (mulai April 2024)</td></tr>';
-        clearBtn.style.display = 'none';
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#999;padding:30px;">Belum ada data</td></tr>';
         return;
     }
     
@@ -446,17 +432,46 @@ function renderTable(filter = '') {
             <td>${item.keterangan}</td>
         </tr>
     `).join('');
-    
-    clearBtn.style.display = isServer ? 'inline-block' : 'none';
-}
-
-function getMonthYear(dateStr) {
-    const [day, month, year] = dateStr.split('/');
-    return `${year}-${month.padStart(2, '0')}`;
 }
 
 function simpanAbsensi(data) {
     const absensi = JSON.parse(localStorage.getItem('absensi') || '[]');
-    const today = new Date().toLocaleDateString('id-ID');
     
     // Cek duplikat hari ini
+    const today = new Date().toLocaleDateString('id-ID');
+    const sudahAbsen = absensi.some(item => 
+        item.nis === data.nis && item.tanggal === today
+    );
+    
+    if (sudahAbsen) {
+        showNotif("❌ Sudah absen hari ini!");
+        return;
+    }
+    
+    absensi.push({
+        ...data,
+        timestamp: new Date().toISOString()
+    });
+    localStorage.setItem('absensi', JSON.stringify(absensi));
+    updateStats();
+    renderTable(currentFilter);
+    showSuccess("✅ Absensi berhasil!");
+}
+
+function login(nis, pass) {
+    const siswa = dataSiswa[nis];
+    if (!siswa) return showNotif("❌ NIS tidak ditemukan!");
+    if (siswa.pass !== pass) return showNotif("❌ Password salah!");
+    
+    currentUser = { nis, ...siswa };
+    document.getElementById("siswaNIS").textContent = nis;
+    document.getElementById("siswaNama").textContent = siswa.nama;
+    document.getElementById("avatar").textContent = siswa.nama[0];
+    document.getElementById("profileCard").style.display = "flex";
+    
+    document.querySelector('[data-tab="absen"]').click();
+    showNotif(`✅ Welcome ${siswa.nama}!`);
+}
+
+function logout() {
+    currentUser
